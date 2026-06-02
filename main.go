@@ -169,6 +169,8 @@ func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	initDB()
+
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/barang", barangHandler)
 	http.HandleFunc("/barang/tambah", tambahBarangHandler)
