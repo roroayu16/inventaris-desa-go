@@ -46,7 +46,14 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.Execute(w, daftarBarang)
+	barangList, err := getAllBarang()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl.Execute(w, barangList)
 }
 
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
@@ -57,16 +64,21 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		lokasi := r.FormValue("lokasi")
 		kondisi := r.FormValue("kondisi")
 
-		barangBaru := Barang{
-			ID:      nextID,
-			Nama:    nama,
-			Jumlah:  jumlah,
-			Lokasi:  lokasi,
-			Kondisi: kondisi,
-		}
+		err := insertBarang(
+			nama,
+			jumlah,
+			lokasi,
+			kondisi,
+		)
 
-		nextID++
-		daftarBarang = append(daftarBarang, barangBaru)
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
 
 		http.Redirect(w, r, "/barang", http.StatusSeeOther)
 		return
