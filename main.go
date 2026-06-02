@@ -1,3 +1,4 @@
+// belajar git pertama
 package main
 
 import (
