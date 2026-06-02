@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        
+        <title>Sistem Inventaris Desa</title>
+
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        
+        <style>
+            body {
+                background-color: #eef6ef;
+            }
+            .card{
+                border:none;
+                border-radius:12px;
+            }
+        </style>
+
+    </head>
+
+    <body>
+        <div class="container mt-5">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    
+                    <h1 class="display-5">
+                        Sistem Inventaris Desa
+                    </h1>
+                    
+                    <p class="text-muted">
+                        Kelola Data Inventaris Barang Desa
+                    </p>
+                    <hr>
+                    
+                    <h3>Total Barang: {{.TotalBarang}}</h3>
+
+                    <a  href="/barang"
+                        class="btn btn-success btn-lg mt-3">
+                        Kelola Inventaris
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </body>
+    
+</html>

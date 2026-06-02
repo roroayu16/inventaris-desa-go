@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Daftar Barang</title>
+
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        
+        <style>
+            body {
+                background-color: #eef6ef;
+            }
+            .card{
+                border:none;
+                border-radius:12px;
+            }
+        </style>
+    </head>
+
+    <body>
+    
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            
+            <div>
+                <h1>Daftar Barang</h1>
+                <p class="text-muted mb-0">
+                    Tabel Barang Inventaris
+                </p>
+            </div>
+
+            <div class="d-flex gap-2">
+                
+                <a  href="/"
+                    class="btn btn-secondary">
+                    Dashboard
+                </a>
+
+                <a  href="/barang/tambah"
+                    class="btn btn-success">
+                    + Tambah Barang
+                </a>
+
+            </div>
+
+        </div>
+
+        <table class="table table-striped table-hover align-middle">
+            
+            <thead class="table-success">
+                <tr>
+                    <th>ID</th>
+                    <th>Nama Barang</th>
+                    <th>Jumlah</th>
+                    <th>Lokasi</th>
+                    <th>Kondisi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{range .}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Nama}}</td>
+                    <td>{{.Jumlah}}</td>
+                    <td>{{.Lokasi}}</td>
+                    <td>
+                        {{if eq .Kondisi "Baik"}}
+                        <span class="badge bg-success">
+                            Baik
+                        </span>
+                        {{end}}
+
+                         {{if eq .Kondisi "Rusak Ringan"}}
+                        <span class="badge bg-warning text-dark">
+                            Rusak Ringan
+                        </span>
+                        {{end}}
+
+                         {{if eq .Kondisi "Rusak Berat"}}
+                        <span class="badge bg-danger">
+                            Rusak Berat
+                        </span>
+                        {{end}}
+                    </td>
+                    <td>
+                        <a  href="/barang/edit?id={{.ID}}"
+                            class="btn btn-warning btn-sm">
+                            Edit
+                        </a>
+
+                        <a  href="/barang/hapus?id={{.ID}}"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                            Hapus
+                        </a>
+                    </td>
+
+                </tr>
+
+                {{end}}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    </body>
+
+</html>

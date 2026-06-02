@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Edit Barang</title>
+
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        
+        <style>
+            body {
+                background-color: #eef6ef;
+            }
+            .card{
+                border:none;
+                border-radius:12px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container mt-5">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1>Edit Barang</h1>
+
+                    <form method="POST">
+
+                        <input 
+                            type="hidden"
+                            name="id"
+                            value="{{.ID}}">
+
+                        Nama Barang:<br>
+                        <input 
+                            type="text"
+                            name="nama"
+                            value="{{.Nama}}"
+                            class="form-control"><br><br>
+
+                        Jumlah:<br>
+                        <input 
+                            type="number" 
+                            name="jumlah"
+                            value="{{.Jumlah}}"
+                            class="form-control"><br><br>
+
+                        Lokasi:<br>
+                        <input 
+                            type="text"
+                            name="lokasi"
+                            value="{{.Lokasi}}"
+                            class="form-control"><br><br>
+
+                        Kondisi:<br>
+                        <select 
+                            name="kondisi" 
+                            class="form-select">
+                            <option>Baik</option>
+                            <option>Rusak Ringan</option>
+                            <option>Rusak Berat</option>
+                        </select>
+
+                        <br><br>
+
+                        <button
+                            class="btn btn-warning"
+                            type="submit">
+                            Simpan Perubahan
+                        </button>
+
+                        <a  href="/barang"
+                            class="btn btn-secondary">
+                            Kembali
+                        </a>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>
