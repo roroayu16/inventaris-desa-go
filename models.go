@@ -24,13 +24,19 @@ type BarangMasuk struct {
 }
 
 type BarangKeluar struct {
-	ID       int
-	BarangID int
-	Jumlah   int
-	Tanggal  string
+	ID         int
+	BarangID   int
+	NamaBarang string
+	Jumlah     int
+	Tanggal    string
 }
 
 type BarangMasukPageData struct {
 	BarangList  []Barang
 	RiwayatList []BarangMasuk
+}
+
+type BarangKeluarPageData struct {
+	BarangList  []Barang
+	RiwayatList []BarangKeluar
 }

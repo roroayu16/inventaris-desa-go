@@ -318,6 +318,17 @@ func barangKeluarHandler(
 		return
 	}
 
+	riwayatList, err := getAllBarangKeluar()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	data := BarangKeluarPageData{
+		BarangList:  barangList,
+		RiwayatList: riwayatList,
+	}
+
 	tmpl, err := template.ParseFiles("templates/barang_keluar.html")
 
 	if err != nil {
@@ -329,10 +340,7 @@ func barangKeluarHandler(
 		return
 	}
 
-	tmpl.Execute(
-		w,
-		barangList,
-	)
+	tmpl.Execute(w, data)
 }
 
 func editBarangHandler(w http.ResponseWriter, r *http.Request) {

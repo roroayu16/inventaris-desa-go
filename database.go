@@ -436,3 +436,45 @@ func getAllBarangMasuk() ([]BarangMasuk, error) {
 
 	return data, nil
 }
+
+func getAllBarangKeluar() ([]BarangKeluar, error) {
+	rows, err := db.Query(`
+		SELECT
+			bm.id,
+			bm.barang_id,
+			b.nama,
+			bm.jumlah,
+			bm.tanggal
+		FROM barang_keluar bm
+		JOIN barang b
+		ON bm.barang_id = b.id
+		ORDER BY bm.id DESC
+	`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var data []BarangKeluar
+
+	for rows.Next() {
+		var b BarangKeluar
+		err := rows.Scan(
+			&b.ID,
+			&b.BarangID,
+			&b.NamaBarang,
+			&b.Jumlah,
+			&b.Tanggal,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, b)
+	}
+
+	return data, nil
+}
