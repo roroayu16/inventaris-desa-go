@@ -1,4 +1,3 @@
-// belajar git pertama
 package main
 
 import (
@@ -20,19 +19,33 @@ type HomeData struct {
 	TotalBarang int
 }
 
-var nextID = 1
-var daftarBarang []Barang
-
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/home.html")
+	totalBarang, err := getTotalBarang()
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
 	data := HomeData{
-		TotalBarang: len(daftarBarang),
+		TotalBarang: totalBarang,
+	}
+
+	tmpl, err := template.ParseFiles(
+		"templates/home.html",
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
 	}
 
 	tmpl.Execute(w, data)
@@ -112,15 +125,21 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		for i, barang := range daftarBarang {
-			if barang.ID == id {
-				daftarBarang[i].Nama = nama
-				daftarBarang[i].Jumlah = jumlah
-				daftarBarang[i].Lokasi = lokasi
-				daftarBarang[i].Kondisi = kondisi
+		err = updateBarang(
+			id,
+			nama,
+			jumlah,
+			lokasi,
+			kondisi,
+		)
 
-				break
-			}
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
 		}
 
 		http.Redirect(w, r, "/barang", http.StatusSeeOther)
@@ -137,22 +156,32 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, barang := range daftarBarang {
+	barang, err := getBarangByID(id)
 
-		if barang.ID == id {
-
-			tmpl, err := template.ParseFiles("templates/edit_barang.html")
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			tmpl.Execute(w, barang)
-
-			return
-		}
+	if err != nil {
+		http.Redirect(
+			w,
+			r,
+			"/barang",
+			http.StatusSeeOther,
+		)
+		return
 	}
+
+	tmpl, err := template.ParseFiles(
+		"templates/edit_barang.html",
+	)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	tmpl.Execute(w, barang)
 
 	fmt.Fprintf(w, "Barang tidak ditemukan")
 }
@@ -165,15 +194,15 @@ func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, barang := range daftarBarang {
-		if barang.ID == id {
-			daftarBarang = append(
-				daftarBarang[:i],
-				daftarBarang[i+1:]...,
-			)
+	err = deleteBarang(id)
 
-			break
-		}
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
 	}
 
 	http.Redirect(w, r, "/barang", http.StatusSeeOther)

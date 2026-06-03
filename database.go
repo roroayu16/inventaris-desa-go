@@ -97,3 +97,91 @@ func insertBarang(nama, jumlah, lokasi, kondisi string) error {
 
 	return err
 }
+
+func getBarangByID(id int) (Barang, error) {
+	var barang Barang
+
+	query := `
+	SELECT
+		id,
+		nama,
+		jumlah,
+		lokasi,
+		kondisi
+	FROM barang
+	WHERE id = ?
+	`
+
+	err := db.QueryRow(
+		query,
+		id,
+	).Scan(
+		&barang.ID,
+		&barang.Nama,
+		&barang.Jumlah,
+		&barang.Lokasi,
+		&barang.Kondisi,
+	)
+
+	return barang, err
+}
+
+func updateBarang(
+	id int,
+	nama string,
+	jumlah string,
+	lokasi string,
+	kondisi string,
+) error {
+	query := `
+	UPDATE barang
+	SET
+		nama = ?,
+		jumlah = ?,
+		lokasi = ?,
+		kondisi = ?
+	WHERE id = ?
+	`
+
+	_, err := db.Exec(
+		query,
+		nama,
+		jumlah,
+		lokasi,
+		kondisi,
+		id,
+	)
+
+	return err
+}
+
+func deleteBarang(id int) error {
+	query := `
+	DELETE FROM barang
+	WHERE id = ?
+	`
+
+	_, err := db.Exec(
+		query,
+		id,
+	)
+
+	return err
+}
+
+func getTotalBarang() (int, error) {
+	var total int
+
+	query := `
+	SELECT COUNT(*)
+	FROM barang
+	`
+
+	err := db.QueryRow(query).Scan(&total)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
