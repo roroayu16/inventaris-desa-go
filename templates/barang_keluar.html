@@ -1,0 +1,35 @@
+<h1>Barang Keluar</h1>
+
+<form method="POST">
+    <label>Barang</label>
+
+    <select name="barang_id">
+        {{range .}}
+        <option value="{{.ID}}">
+            {{.Nama}} - {{.Lokasi}} - {{.Kondisi}}
+        </option>
+        {{end}}
+    </select>
+    <br><br>
+
+    <label>Jumlah Keluar</label>
+    <input
+        type="number"
+        name="jumlah"
+        required
+    >
+    <br><br>
+
+    <label>Tanggal</label>
+    <input
+        type="date"
+        name="tanggal"
+        required
+    >
+    <br><br>
+
+    <button type="submit">
+        Simpan
+    </button>
+
+</form>

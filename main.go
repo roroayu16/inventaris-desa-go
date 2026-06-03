@@ -11,6 +11,10 @@ func main() {
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/barang", barangHandler)
 	http.HandleFunc("/barang/tambah", tambahBarangHandler)
+
+	http.HandleFunc("/barang-masuk", barangMasukHandler)
+	http.HandleFunc("/barang-keluar", barangKeluarHandler)
+
 	http.HandleFunc("/barang/edit", editBarangHandler)
 	http.HandleFunc("/barang/hapus", hapusBarangHandler)
 

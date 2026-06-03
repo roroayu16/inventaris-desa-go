@@ -25,6 +25,7 @@ func initDB() {
 }
 
 func createTable() {
+	//barang
 	query := `
 	CREATE TABLE IF NOT EXISTS barang (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,6 +37,36 @@ func createTable() {
 	`
 
 	_, err := db.Exec(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//barang-masuk
+	queryMasuk := `
+	CREATE TABLE IF NOT EXISTS barang_masuk (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		barang_id INTEGER NOT NULL,
+		jumlah INTEGER NOT NULL,
+		tanggal TEXT NOT NULL
+	);
+	`
+	_, err = db.Exec(queryMasuk)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//barang-keluar
+	queryKeluar := `
+	CREATE TABLE IF NOT EXISTS barang_keluar (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		barang_id INTEGER NOT NULL,
+		jumlah INTEGER NOT NULL,
+		tanggal TEXT NOT NULL
+	);
+	`
+	_, err = db.Exec(queryKeluar)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -184,4 +215,131 @@ func getTotalBarang() (int, error) {
 	}
 
 	return total, nil
+}
+
+func getAllBarangForDropDown() ([]Barang, error) {
+	rows, err := db.Query(`
+		SELECT
+			id,
+			nama,
+			jumlah,
+			lokasi,
+			kondisi
+		FROM barang
+		ORDER BY nama
+	`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var barangList []Barang
+
+	for rows.Next() {
+		var b Barang
+
+		err := rows.Scan(
+			&b.ID,
+			&b.Nama,
+			&b.Jumlah,
+			&b.Lokasi,
+			&b.Kondisi,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		barangList = append(barangList, b)
+	}
+
+	return barangList, nil
+}
+
+func insertBarangMasuk(
+	barangID int,
+	jumlah int,
+	tanggal string,
+) error {
+	query := `
+	INSERT INTO barang_masuk (
+		barang_id,
+		jumlah,
+		tanggal
+	)
+	VALUES (?, ?, ?)
+	`
+
+	_, err := db.Exec(
+		query,
+		barangID,
+		jumlah,
+		tanggal,
+	)
+
+	return err
+}
+
+func updateStokMasuk(
+	barangID int,
+	jumlah int,
+) error {
+	query := `
+	UPDATE barang
+	SET jumlah = jumlah + ?
+	WHERE id = ?
+	`
+
+	_, err := db.Exec(
+		query,
+		jumlah,
+		barangID,
+	)
+
+	return err
+}
+
+func insertBarangKeluar(
+	barangID int,
+	jumlah int,
+	tanggal string,
+) error {
+	query := `
+	INSERT INTO barang_keluar (
+		barang_id,
+		jumlah,
+		tanggal
+	)
+	VALUES (?, ?, ?)
+	`
+
+	_, err := db.Exec(
+		query,
+		barangID,
+		jumlah,
+		tanggal,
+	)
+
+	return err
+}
+
+func updateStokKeluar(
+	barangID int,
+	jumlah int,
+) error {
+	query := `
+	UPDATE barang
+	SET jumlah = jumlah - ?
+	WHERE id = ?
+	`
+
+	_, err := db.Exec(
+		query,
+		jumlah,
+		barangID,
+	)
+
+	return err
 }

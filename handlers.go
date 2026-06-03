@@ -95,6 +95,218 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
+func barangMasukHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	//POST
+	if r.Method == "POST" {
+		barangIDStr := r.FormValue("barang_id")
+		jumlahStr := r.FormValue("jumlah")
+		tanggal := r.FormValue("tanggal")
+
+		barangID, err := strconv.Atoi(barangIDStr)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		jumlah, err := strconv.Atoi(jumlahStr)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		err = insertBarangMasuk(
+			barangID,
+			jumlah,
+			tanggal,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		err = updateStokMasuk(
+			barangID,
+			jumlah,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		http.Redirect(
+			w, r, "/barang", http.StatusSeeOther,
+		)
+		return
+	}
+
+	//GET
+	barangList, err := getAllBarangForDropDown()
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("templates/barang_masuk.html")
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	tmpl.Execute(
+		w,
+		barangList,
+	)
+}
+
+func barangKeluarHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	//POST
+	if r.Method == "POST" {
+		barangIDStr := r.FormValue("barang_id")
+		jumlahStr := r.FormValue("jumlah")
+		tanggal := r.FormValue("tanggal")
+
+		barangID, err := strconv.Atoi(barangIDStr)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		jumlah, err := strconv.Atoi(jumlahStr)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		barang, err := getBarangByID(barangID)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		if jumlah > barang.Jumlah {
+			http.Error(
+				w,
+				"Jumlah keluar melebihi stok tersedia",
+				http.StatusBadRequest,
+			)
+			return
+		}
+
+		err = insertBarangKeluar(
+			barangID,
+			jumlah,
+			tanggal,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		err = updateStokKeluar(
+			barangID,
+			jumlah,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		http.Redirect(
+			w, r, "/barang", http.StatusSeeOther,
+		)
+		return
+	}
+
+	//GET
+	barangList, err := getAllBarangForDropDown()
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("templates/barang_keluar.html")
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	tmpl.Execute(
+		w,
+		barangList,
+	)
+}
+
 func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST
