@@ -76,28 +76,6 @@ func getAllBarang() ([]Barang, error) {
 	return barangList, nil
 }
 
-func insertBarang(nama, jumlah, lokasi, kondisi string) error {
-	query := `
-	INSERT INTO barang (
-		nama,
-		jumlah,
-		lokasi,
-		kondisi
-	)
-	VALUES (?, ?, ?, ?)
-	`
-
-	_, err := db.Exec(
-		query,
-		nama,
-		jumlah,
-		lokasi,
-		kondisi,
-	)
-
-	return err
-}
-
 func getBarangByID(id int) (Barang, error) {
 	var barang Barang
 
@@ -124,6 +102,28 @@ func getBarangByID(id int) (Barang, error) {
 	)
 
 	return barang, err
+}
+
+func insertBarang(nama, jumlah, lokasi, kondisi string) error {
+	query := `
+	INSERT INTO barang (
+		nama,
+		jumlah,
+		lokasi,
+		kondisi
+	)
+	VALUES (?, ?, ?, ?)
+	`
+
+	_, err := db.Exec(
+		query,
+		nama,
+		jumlah,
+		lokasi,
+		kondisi,
+	)
+
+	return err
 }
 
 func updateBarang(
