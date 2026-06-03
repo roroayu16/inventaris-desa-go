@@ -394,3 +394,45 @@ func updateStokKeluar(
 
 	return err
 }
+
+func getAllBarangMasuk() ([]BarangMasuk, error) {
+	rows, err := db.Query(`
+		SELECT
+			bm.id,
+			bm.barang_id,
+			b.nama,
+			bm.jumlah,
+			bm.tanggal
+		FROM barang_masuk bm
+		JOIN barang b
+		ON bm.barang_id = b.id
+		ORDER BY bm.id DESC
+	`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var data []BarangMasuk
+
+	for rows.Next() {
+		var b BarangMasuk
+		err := rows.Scan(
+			&b.ID,
+			&b.BarangID,
+			&b.NamaBarang,
+			&b.Jumlah,
+			&b.Tanggal,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, b)
+	}
+
+	return data, nil
+}

@@ -194,6 +194,17 @@ func barangMasukHandler(
 		return
 	}
 
+	riwayatList, err := getAllBarangMasuk()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	data := BarangMasukPageData{
+		BarangList:  barangList,
+		RiwayatList: riwayatList,
+	}
+
 	tmpl, err := template.ParseFiles("templates/barang_masuk.html")
 
 	if err != nil {
@@ -205,10 +216,7 @@ func barangMasukHandler(
 		return
 	}
 
-	tmpl.Execute(
-		w,
-		barangList,
-	)
+	tmpl.Execute(w, data)
 }
 
 func barangKeluarHandler(

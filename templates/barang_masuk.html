@@ -1,35 +1,119 @@
-<h1>Barang Masuk</h1>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Barang Masuk</title>
 
-<form method="POST">
-    <label>Barang</label>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        
+        <style>
+            body {
+                background-color: #eef6ef;
+            }
+            .card{
+                border:none;
+                border-radius:12px;
+            }
+        </style>
+    </head>
+    
+    <body>
 
-    <select name="barang_id">
-        {{range .}}
-        <option value="{{.ID}}">
-            {{.Nama}} - {{.Lokasi}} - {{.Kondisi}}
-        </option>
-        {{end}}
-    </select>
-    <br><br>
+        <div class="container mt-5">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h1>Barang Masuk</h1>
+                    
+                    <form method="POST">
+                        
+                        <label class="form-label">
+                            Barang
+                        </label>
 
-    <label>Jumlah Masuk</label>
-    <input
-        type="number"
-        name="jumlah"
-        required
-    >
-    <br><br>
+                        <select 
+                            name="barang_id"
+                            class="form-select">
 
-    <label>Tanggal</label>
-    <input
-        type="date"
-        name="tanggal"
-        required
-    >
-    <br><br>
+                            {{range .BarangList}}
 
-    <button type="submit">
-        Simpan
-    </button>
+                            <option value="{{.ID}}">
+                                {{.Nama}} - {{.Lokasi}} - {{.Kondisi}}
+                            </option>
+                            {{end}}
+                        </select>
+                        <br>
 
-</form>
+                        <label class="form-label">
+                            Jumlah Masuk
+                        </label>
+                        <input
+                            type="number"
+                            name="jumlah"
+                            class="form-control"
+                            required
+                        >
+                        <br>
+
+                        <label class="form-label">
+                            Tanggal
+                        </label>
+                        <input
+                            type="date"
+                            name="tanggal"
+                            class="form-control"
+                            required
+                        >
+                        <br>
+
+                        <button 
+                            type="submit"
+                            class="btn btn-success">
+                            Simpan
+                        </button>
+
+                        <a 
+                            href="/"
+                            class="btn btn-secondary">
+                            Kembali
+                        </a>
+                        
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <h3>Riwayat Barang Masuk</h3>
+
+                    <table class="table table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Barang</th>
+                                <th>Jumlah</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {{range .RiwayatList}}
+
+                            <tr>
+                                <td>{{.Tanggal}}</td>
+                                <td>{{.NamaBarang}}</td>
+                                <td>{{.Jumlah}}</td>
+                            </tr>
+
+                            {{end}}
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>    
+    </body>
+
+</html>
