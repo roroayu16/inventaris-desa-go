@@ -17,6 +17,9 @@
                 border:none;
                 border-radius:12px;
             }
+            .stat-card h2{
+                font-weight: bold;
+            }
         </style>
 
     </head>
@@ -35,12 +38,72 @@
                     </p>
                     <hr>
                     
-                    <h3>Total Barang: {{.TotalBarang}}</h3>
+                    <div class="row mt-4">
+                        
+                        <div class="col-md-3 mb-3">
+                            <div class="card shadow-sm h-100 stat-card">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted">
+                                        Jenis Barang
+                                    </h6>
+                                    <h2>{{.TotalBarang}}</h2>
+                                </div>
+                            </div>
+                        </div>
 
-                    <a  href="/barang"
-                        class="btn btn-success btn-lg mt-3">
-                        Kelola Inventaris
-                    </a>
+                        <div class="col-md-3 mb-3">
+                            <div class="card shadow-sm h-100 stat-card">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted">
+                                        Total Stok
+                                    </h6>
+                                    <h2>{{.TotalStok}}</h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="card shadow-sm h-100 stat-card">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted">
+                                        Barang Masuk
+                                    </h6>
+                                    <h2>{{.TotalMasuk}}</h2>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <div class="card shadow-sm h-100 stat-card">
+                                <div class="card-body text-center">
+                                    <h6 class="text-muted">
+                                        Barang Keluar
+                                    </h6>
+                                    <h2>{{.TotalKeluar}}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    
+                    </div>
+
+                    <div class="text-center mt-4">
+
+                        <a href="/barang"
+                        class="btn btn-success btn-lg me-2">
+                        Data Barang
+                        </a>
+
+                        <a href="/barang-masuk"
+                        class="btn btn-primary btn-lg me-2">
+                        Barang Masuk
+                        </a>
+
+                        <a href="/barang-keluar"
+                        class="btn btn-danger btn-lg">
+                        Barang Keluar
+                        </a>
+
+                    </div>
 
                 </div>
             </div>

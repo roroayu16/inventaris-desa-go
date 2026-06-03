@@ -11,16 +11,36 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	totalBarang, err := getTotalBarang()
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	totalStok, err := getTotalStok()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	totalMasuk, err := getTotalBarangMasuk()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	totalKeluar, err := getTotalBarangKeluar()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	data := HomeData{
 		TotalBarang: totalBarang,
+		TotalStok:   totalStok,
+		TotalMasuk:  totalMasuk,
+		TotalKeluar: totalKeluar,
 	}
 
 	tmpl, err := template.ParseFiles(

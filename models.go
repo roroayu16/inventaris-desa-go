@@ -10,6 +10,9 @@ type Barang struct {
 
 type HomeData struct {
 	TotalBarang int
+	TotalStok   int
+	TotalMasuk  int
+	TotalKeluar int
 }
 
 type BarangMasuk struct {

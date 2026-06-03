@@ -217,6 +217,57 @@ func getTotalBarang() (int, error) {
 	return total, nil
 }
 
+func getTotalStok() (int, error) {
+	var total int
+
+	query := `
+	SELECT COALESCE(SUM(jumlah), 0)
+	FROM barang
+	`
+
+	err := db.QueryRow(query).Scan(&total)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func getTotalBarangMasuk() (int, error) {
+	var total int
+
+	query := `
+	SELECT COALESCE(SUM(jumlah), 0)
+	FROM barang_masuk
+	`
+
+	err := db.QueryRow(query).Scan(&total)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func getTotalBarangKeluar() (int, error) {
+	var total int
+
+	query := `
+	SELECT COALESCE(SUM(jumlah), 0)
+	FROM barang_keluar
+	`
+
+	err := db.QueryRow(query).Scan(&total)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
 func getAllBarangForDropDown() ([]Barang, error) {
 	rows, err := db.Query(`
 		SELECT
