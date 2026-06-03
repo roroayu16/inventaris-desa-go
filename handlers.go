@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/xuri/excelize/v2"
 )
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -443,4 +445,99 @@ func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/barang", http.StatusSeeOther)
 
+}
+
+func exportBarangExcelHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	barangList, err := getAllBarang()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	f := excelize.NewFile()
+
+	f.SetCellValue(
+		"Sheet1",
+		"A1",
+		"ID",
+	)
+
+	f.SetCellValue(
+		"Sheet1",
+		"B1",
+		"Nama Barang",
+	)
+
+	f.SetCellValue(
+		"Sheet1",
+		"C1",
+		"Jumlah",
+	)
+
+	f.SetCellValue(
+		"Sheet1",
+		"D1",
+		"Lokasi",
+	)
+
+	f.SetCellValue(
+		"Sheet1",
+		"E1",
+		"Kondisi",
+	)
+
+	for i, barang := range barangList {
+		row := i + 2
+
+		f.SetCellValue(
+			"Sheet1",
+			fmt.Sprintf("A%d", row),
+			barang.ID,
+		)
+
+		f.SetCellValue(
+			"Sheet1",
+			fmt.Sprintf("B%d", row),
+			barang.Nama,
+		)
+
+		f.SetCellValue(
+			"Sheet1",
+			fmt.Sprintf("C%d", row),
+			barang.Jumlah,
+		)
+
+		f.SetCellValue(
+			"Sheet1",
+			fmt.Sprintf("D%d", row),
+			barang.Lokasi,
+		)
+
+		f.SetCellValue(
+			"Sheet1",
+			fmt.Sprintf("E%d", row),
+			barang.Kondisi,
+		)
+	}
+
+	w.Header().Set(
+		"Content-Type",
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	)
+
+	w.Header().Set(
+		"Content-Disposition",
+		`attachment; filename="inventaris_barang.xlsx`,
+	)
+
+	err = f.Write(w)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

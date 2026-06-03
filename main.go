@@ -9,8 +9,10 @@ func main() {
 	initDB()
 
 	http.HandleFunc("/", homeHandler)
+
 	http.HandleFunc("/barang", barangHandler)
 	http.HandleFunc("/barang/tambah", tambahBarangHandler)
+	http.HandleFunc("/export/barang", exportBarangExcelHandler)
 
 	http.HandleFunc("/barang-masuk", barangMasukHandler)
 	http.HandleFunc("/barang-keluar", barangKeluarHandler)
