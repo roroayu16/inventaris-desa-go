@@ -66,9 +66,9 @@
                             <th>Nama Barang</th>
                             <th>Lokasi</th>
                             <th>Kondisi</th>
-                            <th>Total Masuk</th>
-                            <th>Total Keluar</th>
-                            <th>Stok</th>
+                            <th class="text-center">Total Masuk</th>
+                            <th class="text-center">Total Keluar</th>
+                            <th class="text-center">Stok</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -103,10 +103,15 @@
                                 {{end}}
                             </td>
 
-                            <td>{{.TotalMasuk}}</td>
-                            <td>{{.TotalKeluar}}</td>
+                            <td class="text-center">
+                                {{.TotalMasuk}}
+                            </td>
 
-                            <td>
+                            <td class="text-center">
+                                {{.TotalKeluar}}
+                            </td>
+
+                            <td class="text-center">
                                 <span class="badge bg-primary">
                                     {{.Jumlah}}
                                 </span>

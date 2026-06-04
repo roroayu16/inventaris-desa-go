@@ -352,7 +352,6 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		idstr := r.FormValue("id")
 
 		nama := r.FormValue("nama")
-		jumlah := r.FormValue("jumlah")
 		lokasi := r.FormValue("lokasi")
 		kondisi := r.FormValue("kondisi")
 
@@ -363,10 +362,19 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		barangLama, err := getBarangByID(id)
+
+		if err != nil {
+			http.Redirect(
+				w, r, "/barang", http.StatusSeeOther,
+			)
+			return
+		}
+
 		err = updateBarang(
 			id,
 			nama,
-			jumlah,
+			strconv.Itoa(barangLama.Jumlah),
 			lokasi,
 			kondisi,
 		)
@@ -421,7 +429,6 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl.Execute(w, barang)
 
-	fmt.Fprintf(w, "Barang tidak ditemukan")
 }
 
 func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {

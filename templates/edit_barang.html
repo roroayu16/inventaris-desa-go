@@ -14,15 +14,34 @@
             .card{
                 border:none;
                 border-radius:12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             }
         </style>
     </head>
 
     <body>
-        <div class="container mt-5">
+        <div class="container mt-4">
+            <div class="mb-3">
+                <a  href="/barang"
+                    class="btn btn-secondary">
+                ← Kembali
+                </a>
+            </div>
+
             <div class="card shadow">
                 <div class="card-body">
-                    <h1>Edit Barang</h1>
+
+                    <div class="mb-4">
+
+                        <h1 class="fw-bold mb-1">
+                            Edit Barang
+                        </h1>
+
+                        <p class="text-muted mb-0">
+                            Perbarui data inventaris barang
+                        </p>
+
+                    </div>
 
                     <form method="POST">
 
@@ -31,48 +50,83 @@
                             name="id"
                             value="{{.ID}}">
 
-                        Nama Barang:<br>
-                        <input 
-                            type="text"
-                            name="nama"
-                            value="{{.Nama}}"
-                            class="form-control"><br><br>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Nama Barang
+                                </label>
+                                <input 
+                                    type="text"
+                                    name="nama"
+                                    value="{{.Nama}}"
+                                    class="form-control"
+                                    required>
+                            </div>
 
-                        Jumlah:<br>
-                        <input 
-                            type="number" 
-                            name="jumlah"
-                            value="{{.Jumlah}}"
-                            class="form-control"><br><br>
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Lokasi
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="lokasi"
+                                    value="{{.Lokasi}}"
+                                    class="form-control"
+                                    required>
+                            </div>    
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Stok Saat ini
+                                </label>
+                                <input 
+                                    type="number"
+                                    name="jumlah"
+                                    value="{{.Jumlah}}"
+                                    class="form-control"
+                                    readonly>
+                                
+                                <div class="form-text">
+                                    Stok hanya dapat berubah melalui
+                                    Barang Masuk atau Barang Keluar
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Kondisi
+                                </label>
+                                <select 
+                                    name="kondisi" 
+                                    class="form-select">
 
-                        Lokasi:<br>
-                        <input 
-                            type="text"
-                            name="lokasi"
-                            value="{{.Lokasi}}"
-                            class="form-control"><br><br>
+                                    <option value="Baik"
+                                        {{if eq .Kondisi "Baik"}}selected{{end}}>
+                                        Baik
+                                    </option>
 
-                        Kondisi:<br>
-                        <select 
-                            name="kondisi" 
-                            class="form-select">
-                            <option>Baik</option>
-                            <option>Rusak Ringan</option>
-                            <option>Rusak Berat</option>
-                        </select>
+                                    <option value="Rusak Ringan"
+                                        {{if eq .Kondisi "Rusak Ringan"}}selected{{end}}>
+                                        Rusak Ringan
+                                    </option>
 
-                        <br><br>
+                                    <option value="Rusak Berat"
+                                        {{if eq .Kondisi "Rusak Berat"}}selected{{end}}>
+                                        Rusak Berat
+                                    </option>
 
-                        <button
-                            class="btn btn-warning"
-                            type="submit">
-                            Simpan Perubahan
-                        </button>
+                                </select>
+                            </div>
+                        </div>
 
-                        <a  href="/barang"
-                            class="btn btn-secondary">
-                            Kembali
-                        </a>
+                        <div class="d-flex justify-content-between mt-4">
+                            <button class="btn btn-warning"
+                                    type="submit">
+                                Simpan Perubahan
+                            </button>
+                        </div>
 
                     </form>
 
