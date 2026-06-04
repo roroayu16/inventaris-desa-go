@@ -6,6 +6,9 @@ type Barang struct {
 	Jumlah  int
 	Lokasi  string
 	Kondisi string
+
+	TotalMasuk  int
+	TotalKeluar int
 }
 
 type HomeData struct {

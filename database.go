@@ -74,9 +74,34 @@ func createTable() {
 
 func getAllBarang() ([]Barang, error) {
 	rows, err := db.Query(`
-		SELECT id, nama, jumlah, lokasi, kondisi
-		FROM barang
-		ORDER BY id
+		SELECT 
+			b.id, 
+			b.nama, 
+			b.lokasi, 
+			b.kondisi,
+
+			COALESCE(
+				(
+					SELECT SUM(jumlah)
+					FROM barang_masuk bm
+					WHERE bm.barang_id = b.id
+				),
+				0
+			) AS total_masuk,
+			
+			COALESCE(
+				(
+					SELECT SUM(jumlah)
+					FROM barang_keluar bk
+					WHERE bk.barang_id = b.id
+				),
+				0
+			) AS total_keluar,
+			
+			b.jumlah
+
+		FROM barang b
+		ORDER BY b.id
 	`)
 
 	if err != nil {
@@ -92,9 +117,11 @@ func getAllBarang() ([]Barang, error) {
 		err := rows.Scan(
 			&b.ID,
 			&b.Nama,
-			&b.Jumlah,
 			&b.Lokasi,
 			&b.Kondisi,
+			&b.TotalMasuk,
+			&b.TotalKeluar,
+			&b.Jumlah,
 		)
 
 		if err != nil {
