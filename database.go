@@ -505,3 +505,79 @@ func getAllBarangKeluar() ([]BarangKeluar, error) {
 
 	return data, nil
 }
+
+func getBarangMasukByBarangID(barangID int) ([]BarangMasuk, error) {
+	rows, err := db.Query(`
+		SELECT
+			id,
+			barang_id,
+			jumlah,
+			tanggal
+		FROM barang_masuk
+		WHERE barang_id = ?
+		ORDER BY tanggal DESC
+	`, barangID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var data []BarangMasuk
+
+	for rows.Next() {
+		var b BarangMasuk
+
+		err := rows.Scan(
+			&b.ID,
+			&b.BarangID,
+			&b.Jumlah,
+			&b.Tanggal,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, b)
+	}
+	return data, nil
+}
+
+func getBarangKeluarByBarangID(barangID int) ([]BarangKeluar, error) {
+	rows, err := db.Query(`
+		SELECT
+			id,
+			barang_id,
+			jumlah,
+			tanggal
+		FROM barang_keluar
+		WHERE barang_id = ?
+		ORDER BY tanggal DESC
+	`, barangID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var data []BarangKeluar
+
+	for rows.Next() {
+		var b BarangKeluar
+
+		err := rows.Scan(
+			&b.ID,
+			&b.BarangID,
+			&b.Jumlah,
+			&b.Tanggal,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, b)
+	}
+	return data, nil
+}

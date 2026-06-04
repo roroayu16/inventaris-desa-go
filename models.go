@@ -43,3 +43,10 @@ type BarangKeluarPageData struct {
 	BarangList  []Barang
 	RiwayatList []BarangKeluar
 }
+
+type DetailBarang struct {
+	Barang Barang
+
+	RiwayatMasuk  []BarangMasuk
+	RiwayatKeluar []BarangKeluar
+}

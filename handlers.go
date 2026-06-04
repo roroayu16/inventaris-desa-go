@@ -541,3 +541,68 @@ func exportBarangExcelHandler(
 		return
 	}
 }
+
+func detailBarangHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	idStr := r.URL.Query().Get("id")
+
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		http.Error(
+			w,
+			"ID tidak valid",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	barang, err := getBarangByID(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	riwayatMasuk, err := getBarangMasukByBarangID(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	riwayatKeluar, err := getBarangKeluarByBarangID(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	data := DetailBarang{
+		Barang:        barang,
+		RiwayatMasuk:  riwayatMasuk,
+		RiwayatKeluar: riwayatKeluar,
+	}
+
+	tmpl := template.Must(
+		template.ParseFiles(
+			"templates/detail_barang.html",
+		),
+	)
+
+	tmpl.Execute(w, data)
+}
