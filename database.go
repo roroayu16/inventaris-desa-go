@@ -30,7 +30,8 @@ func createTable() {
 	CREATE TABLE IF NOT EXISTS barang (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		nama TEXT NOT NULL,
-		jumlah TEXT NOT NULL,
+		stok_awal INTEGER NOT NULL,
+		jumlah INTEGER NOT NULL,
 		lokasi TEXT NOT NULL,
 		kondisi TEXT NOT NULL
 	);
@@ -76,9 +77,10 @@ func getAllBarang() ([]Barang, error) {
 	rows, err := db.Query(`
 		SELECT 
 			b.id, 
-			b.nama, 
+			b.nama,
 			b.lokasi, 
 			b.kondisi,
+			b.stok_awal, 
 
 			COALESCE(
 				(
@@ -119,6 +121,7 @@ func getAllBarang() ([]Barang, error) {
 			&b.Nama,
 			&b.Lokasi,
 			&b.Kondisi,
+			&b.StokAwal,
 			&b.TotalMasuk,
 			&b.TotalKeluar,
 			&b.Jumlah,
@@ -141,9 +144,10 @@ func getBarangByID(id int) (Barang, error) {
 	SELECT
 		id,
 		nama,
-		jumlah,
+		stok_awal,
 		lokasi,
-		kondisi
+		kondisi,
+		jumlah
 	FROM barang
 	WHERE id = ?
 	`
@@ -154,9 +158,10 @@ func getBarangByID(id int) (Barang, error) {
 	).Scan(
 		&barang.ID,
 		&barang.Nama,
-		&barang.Jumlah,
+		&barang.StokAwal,
 		&barang.Lokasi,
 		&barang.Kondisi,
+		&barang.Jumlah,
 	)
 
 	return barang, err
@@ -166,16 +171,18 @@ func insertBarang(nama, jumlah, lokasi, kondisi string) error {
 	query := `
 	INSERT INTO barang (
 		nama,
+		stok_awal,
 		jumlah,
 		lokasi,
 		kondisi
 	)
-	VALUES (?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?)
 	`
 
 	_, err := db.Exec(
 		query,
 		nama,
+		jumlah,
 		jumlah,
 		lokasi,
 		kondisi,

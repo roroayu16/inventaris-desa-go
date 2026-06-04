@@ -62,13 +62,14 @@
             
                     <thead class="table-primary">
                         <tr>
-                            <th>Kode Barang</th>
-                            <th>Nama Barang</th>
-                            <th>Lokasi</th>
-                            <th>Kondisi</th>
+                            <th class="text-center">Kode Barang</th>
+                            <th class="text-center">Nama Barang</th>
+                            <th class="text-center">Lokasi</th>
+                            <th class="text-center">Kondisi</th>
+                            <th class="text-center">Stok Awal</th>
                             <th class="text-center">Total Masuk</th>
                             <th class="text-center">Total Keluar</th>
-                            <th class="text-center">Stok</th>
+                            <th class="text-center">Stok Akhir</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -101,6 +102,10 @@
                                     Rusak Berat
                                 </span>
                                 {{end}}
+                            </td>
+
+                            <td class="text-center">
+                                {{.StokAwal}}
                             </td>
 
                             <td class="text-center">

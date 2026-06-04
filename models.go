@@ -1,14 +1,18 @@
 package main
 
 type Barang struct {
-	ID      int
-	Nama    string
-	Jumlah  int
+	ID   int
+	Nama string
+
+	StokAwal int
+
 	Lokasi  string
 	Kondisi string
 
 	TotalMasuk  int
 	TotalKeluar int
+
+	Jumlah int
 }
 
 type HomeData struct {
