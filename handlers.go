@@ -84,13 +84,13 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 		nama := r.FormValue("nama")
 		jumlah := r.FormValue("jumlah")
-		lokasi := r.FormValue("lokasi")
+		tempat := r.FormValue("tempat")
 		kondisi := r.FormValue("kondisi")
 
 		err := insertBarang(
 			nama,
 			jumlah,
-			lokasi,
+			tempat,
 			kondisi,
 		)
 
@@ -352,7 +352,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		idstr := r.FormValue("id")
 
 		nama := r.FormValue("nama")
-		lokasi := r.FormValue("lokasi")
+		tempat := r.FormValue("tempat")
 		kondisi := r.FormValue("kondisi")
 
 		id, err := strconv.Atoi(idstr)
@@ -375,7 +375,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 			id,
 			nama,
 			strconv.Itoa(barangLama.Jumlah),
-			lokasi,
+			tempat,
 			kondisi,
 		)
 
@@ -471,7 +471,7 @@ func exportBarangExcelHandler(
 	f.SetSheetName("Sheet1", sheetName)
 	f.SetCellValue(sheetName, "A1", "Kode Barang")
 	f.SetCellValue(sheetName, "B1", "Nama Barang")
-	f.SetCellValue(sheetName, "C1", "Lokasi")
+	f.SetCellValue(sheetName, "C1", "tempat")
 	f.SetCellValue(sheetName, "D1", "Kondisi")
 	f.SetCellValue(sheetName, "E1", "Stok Awal")
 	f.SetCellValue(sheetName, "F1", "Stok Akhir")
@@ -494,7 +494,7 @@ func exportBarangExcelHandler(
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("C%d", row),
-			barang.Lokasi,
+			barang.Tempat,
 		)
 
 		f.SetCellValue(

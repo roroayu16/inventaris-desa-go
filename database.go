@@ -32,7 +32,7 @@ func createTable() {
 		nama TEXT NOT NULL,
 		stok_awal INTEGER NOT NULL,
 		jumlah INTEGER NOT NULL,
-		lokasi TEXT NOT NULL,
+		tempat TEXT NOT NULL,
 		kondisi TEXT NOT NULL
 	);
 	`
@@ -78,7 +78,7 @@ func getAllBarang() ([]Barang, error) {
 		SELECT 
 			b.id, 
 			b.nama,
-			b.lokasi, 
+			b.tempat, 
 			b.kondisi,
 			b.stok_awal, 
 
@@ -119,7 +119,7 @@ func getAllBarang() ([]Barang, error) {
 		err := rows.Scan(
 			&b.ID,
 			&b.Nama,
-			&b.Lokasi,
+			&b.Tempat,
 			&b.Kondisi,
 			&b.StokAwal,
 			&b.TotalMasuk,
@@ -145,7 +145,7 @@ func getBarangByID(id int) (Barang, error) {
 		id,
 		nama,
 		stok_awal,
-		lokasi,
+		tempat,
 		kondisi,
 		jumlah
 	FROM barang
@@ -159,7 +159,7 @@ func getBarangByID(id int) (Barang, error) {
 		&barang.ID,
 		&barang.Nama,
 		&barang.StokAwal,
-		&barang.Lokasi,
+		&barang.Tempat,
 		&barang.Kondisi,
 		&barang.Jumlah,
 	)
@@ -167,13 +167,13 @@ func getBarangByID(id int) (Barang, error) {
 	return barang, err
 }
 
-func insertBarang(nama, jumlah, lokasi, kondisi string) error {
+func insertBarang(nama, jumlah, tempat, kondisi string) error {
 	query := `
 	INSERT INTO barang (
 		nama,
 		stok_awal,
 		jumlah,
-		lokasi,
+		tempat,
 		kondisi
 	)
 	VALUES (?, ?, ?, ?, ?)
@@ -184,7 +184,7 @@ func insertBarang(nama, jumlah, lokasi, kondisi string) error {
 		nama,
 		jumlah,
 		jumlah,
-		lokasi,
+		tempat,
 		kondisi,
 	)
 
@@ -195,7 +195,7 @@ func updateBarang(
 	id int,
 	nama string,
 	jumlah string,
-	lokasi string,
+	tempat string,
 	kondisi string,
 ) error {
 	query := `
@@ -203,7 +203,7 @@ func updateBarang(
 	SET
 		nama = ?,
 		jumlah = ?,
-		lokasi = ?,
+		tempat = ?,
 		kondisi = ?
 	WHERE id = ?
 	`
@@ -212,7 +212,7 @@ func updateBarang(
 		query,
 		nama,
 		jumlah,
-		lokasi,
+		tempat,
 		kondisi,
 		id,
 	)
@@ -308,7 +308,7 @@ func getAllBarangForDropDown() ([]Barang, error) {
 			id,
 			nama,
 			jumlah,
-			lokasi,
+			tempat,
 			kondisi
 		FROM barang
 		ORDER BY nama
@@ -329,7 +329,7 @@ func getAllBarangForDropDown() ([]Barang, error) {
 			&b.ID,
 			&b.Nama,
 			&b.Jumlah,
-			&b.Lokasi,
+			&b.Tempat,
 			&b.Kondisi,
 		)
 

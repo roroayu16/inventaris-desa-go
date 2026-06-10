@@ -60,7 +60,7 @@
 
                                     <option value="{{.ID}}"
                                             data-nama="{{.Nama}}"
-                                            data-lokasi="{{.Lokasi}}"
+                                            data-tempat="{{.Tempat}}"
                                             data-kondisi="{{.Kondisi}}">
                                         BR-{{.ID}}
                                     </option>
@@ -84,12 +84,12 @@
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <label class="form-label">
-                                    Lokasi
+                                    Tempat
                                 </label>
 
                                 <input 
                                     type="text"
-                                    id="lokasiBarang"
+                                    id="tempatBarang"
                                     class="form-control"
                                     readonly>
                             </div>
@@ -205,8 +205,8 @@
         document.getElementById("namaBarang").value =
             option.dataset.nama;
 
-        document.getElementById("lokasiBarang").value =
-            option.dataset.lokasi;
+        document.getElementById("TempatBarang").value =
+            option.dataset.tempat;
 
         document.getElementById("kondisiBarang").value =
             option.dataset.kondisi;

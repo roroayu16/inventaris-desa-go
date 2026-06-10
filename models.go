@@ -6,7 +6,7 @@ type Barang struct {
 
 	StokAwal int
 
-	Lokasi  string
+	Tempat  string
 	Kondisi string
 
 	TotalMasuk  int
