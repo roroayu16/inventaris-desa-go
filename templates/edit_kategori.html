@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Kategori</title>
+</head>
+<body>
+
+<h1>Edit Kategori</h1>
+
+<form method="POST">
+
+    <p>Kode Kategori</p>
+    <input
+        type="text"
+        name="kode"
+        value="{{.Kode}}"
+    >
+
+    <p>Nama Kategori</p>
+    <input
+        type="text"
+        name="nama"
+        value="{{.Nama}}"
+    >
+
+    <br><br>
+
+    <button type="submit">
+        Simpan Perubahan
+    </button>
+
+</form>
+
+</body>
+</html>

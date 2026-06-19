@@ -16,12 +16,23 @@
             <tr>
                 <th>Kode</th>
                 <th>Nama</th>
+                <th>Aksi</th>
             </tr>
 
             {{range .}}
             <tr>
                 <td>{{.Kode}}</td>
                 <td>{{.Nama}}</td>
+                <td>
+                    <a href="/kategori/edit?id={{.ID}}">
+                        Edit
+                    </a>
+
+                    |
+                    <a href="/kategori/hapus?id={{.ID}}">
+                        Hapus
+                    </a>
+                </td>
             </tr>
             {{end}}
 

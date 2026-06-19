@@ -161,6 +161,93 @@ func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
+func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get("id")
+
+	if r.Method == "POST" {
+
+		kode := r.FormValue("kode")
+		nama := r.FormValue("nama")
+
+		_, err := db.Exec(`
+			UPDATE kategori
+			SET kode = ?, nama = ?
+			WHERE id = ?
+		`,
+			kode,
+			nama,
+			id,
+		)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		http.Redirect(
+			w,
+			r,
+			"/kategori",
+			http.StatusSeeOther,
+		)
+
+		return
+	}
+
+	var kategori Kategori
+
+	err := db.QueryRow(`
+		SELECT id, kode, nama
+		FROM kategori
+		WHERE id = ?
+	`,
+		id,
+	).Scan(
+		&kategori.ID,
+		&kategori.Kode,
+		&kategori.Nama,
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	t, err := template.ParseFiles(
+		"templates/edit_kategori.html",
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	t.Execute(w, kategori)
+}
+
+func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
+
+	id := r.URL.Query().Get("id")
+
+	_, err := db.Exec(`
+		DELETE FROM kategori
+		WHERE id = ?
+	`, id)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	http.Redirect(
+		w,
+		r,
+		"/kategori",
+		http.StatusSeeOther,
+	)
+}
+
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 
