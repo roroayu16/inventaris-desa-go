@@ -251,12 +251,14 @@ func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 
+		kategoriID := r.FormValue("kategori_id")
 		nama := r.FormValue("nama")
 		jumlah := r.FormValue("jumlah")
 		tempat := r.FormValue("tempat")
 		kondisi := r.FormValue("kondisi")
 
 		err := insertBarang(
+			kategoriID,
 			nama,
 			jumlah,
 			tempat,
@@ -283,7 +285,43 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.Execute(w, nil)
+	rows, err := db.Query(`
+		SELECT id, kode, nama
+		FROM kategori
+		ORDER BY nama
+	`)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	var kategori []Kategori
+
+	for rows.Next() {
+		var k Kategori
+
+		err := rows.Scan(
+			&k.ID,
+			&k.Kode,
+			&k.Nama,
+		)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		kategori = append(kategori, k)
+	}
+
+	data := TambahBarangData{
+		Kategori: kategori,
+	}
+
+	tmpl.Execute(w, data)
 }
 
 func barangMasukHandler(
@@ -520,6 +558,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		idstr := r.FormValue("id")
 
+		KategoriID := r.FormValue("kategori_id")
 		nama := r.FormValue("nama")
 		tempat := r.FormValue("tempat")
 		kondisi := r.FormValue("kondisi")
@@ -542,6 +581,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 		err = updateBarang(
 			id,
+			KategoriID,
 			nama,
 			strconv.Itoa(barangLama.Jumlah),
 			tempat,
@@ -574,13 +614,57 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 	barang, err := getBarangByID(id)
 
 	if err != nil {
-		http.Redirect(
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
+	rows, err := db.Query(`
+		SELECT id, kode, nama
+		FROM kategori
+		ORDER BY nama
+	`)
+
+	if err != nil {
+		http.Error(
 			w,
-			r,
-			"/barang",
-			http.StatusSeeOther,
+			err.Error(),
+			http.StatusInternalServerError,
 		)
 		return
+	}
+
+	defer rows.Close()
+
+	var kategoriList []Kategori
+
+	for rows.Next() {
+
+		var k Kategori
+
+		err := rows.Scan(
+			&k.ID,
+			&k.Kode,
+			&k.Nama,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		kategoriList = append(
+			kategoriList,
+			k,
+		)
+	}
+
+	data := EditBarangData{
+		Barang:   barang,
+		Kategori: kategoriList,
 	}
 
 	tmpl, err := template.ParseFiles(
@@ -596,7 +680,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.Execute(w, barang)
+	tmpl.Execute(w, data)
 
 }
 

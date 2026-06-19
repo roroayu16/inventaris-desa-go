@@ -1,18 +1,18 @@
 package main
 
 type Barang struct {
-	ID   int
-	Nama string
+	ID         int
+	KategoriID int
+	Kategori   string
 
-	StokAwal int
-
+	Nama    string
 	Tempat  string
 	Kondisi string
 
+	StokAwal    int
 	TotalMasuk  int
 	TotalKeluar int
-
-	Jumlah int
+	Jumlah      int
 }
 
 type Kategori struct {
@@ -59,4 +59,13 @@ type DetailBarang struct {
 
 	RiwayatMasuk  []BarangMasuk
 	RiwayatKeluar []BarangKeluar
+}
+
+type TambahBarangData struct {
+	Kategori []Kategori
+}
+
+type EditBarangData struct {
+	Barang   Barang
+	Kategori []Kategori
 }

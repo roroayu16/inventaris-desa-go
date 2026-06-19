@@ -20,6 +20,7 @@ func initDB() {
 	}
 
 	createTable()
+	migrateBarangKategori()
 
 	log.Println("Database INIT Success")
 }
@@ -84,10 +85,25 @@ func createTable() {
 	}
 }
 
+func migrateBarangKategori() {
+
+	_, err := db.Exec(`
+		ALTER TABLE barang
+		ADD COLUMN kategori_id INTEGER
+	`)
+
+	if err != nil {
+		log.Println("Migration kategori_id dilewati:", err)
+	}
+
+	log.Println("Migration kategori_id berhasil")
+}
+
 func getAllBarang() ([]Barang, error) {
 	rows, err := db.Query(`
 		SELECT 
-			b.id, 
+			b.id,
+			k.nama AS kategori, 
 			b.nama,
 			b.tempat, 
 			b.kondisi,
@@ -114,6 +130,8 @@ func getAllBarang() ([]Barang, error) {
 			b.jumlah
 
 		FROM barang b
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
 		ORDER BY b.id
 	`)
 
@@ -129,6 +147,7 @@ func getAllBarang() ([]Barang, error) {
 		var b Barang
 		err := rows.Scan(
 			&b.ID,
+			&b.Kategori,
 			&b.Nama,
 			&b.Tempat,
 			&b.Kondisi,
@@ -153,14 +172,18 @@ func getBarangByID(id int) (Barang, error) {
 
 	query := `
 	SELECT
-		id,
-		nama,
-		stok_awal,
-		tempat,
-		kondisi,
-		jumlah
-	FROM barang
-	WHERE id = ?
+		b.id,
+		b.kategori_id,
+		k.nama,
+		b.nama,
+		b.stok_awal,
+		b.tempat,
+		b.kondisi,
+		b.jumlah
+	FROM barang b
+	LEFT JOIN kategori k
+		ON b.kategori_id = k.id
+	WHERE b.id = ?
 	`
 
 	err := db.QueryRow(
@@ -168,6 +191,8 @@ func getBarangByID(id int) (Barang, error) {
 		id,
 	).Scan(
 		&barang.ID,
+		&barang.KategoriID,
+		&barang.Kategori,
 		&barang.Nama,
 		&barang.StokAwal,
 		&barang.Tempat,
@@ -178,20 +203,22 @@ func getBarangByID(id int) (Barang, error) {
 	return barang, err
 }
 
-func insertBarang(nama, jumlah, tempat, kondisi string) error {
+func insertBarang(kategoriID, nama, jumlah, tempat, kondisi string) error {
 	query := `
 	INSERT INTO barang (
+		kategori_id,
 		nama,
 		stok_awal,
 		jumlah,
 		tempat,
 		kondisi
 	)
-	VALUES (?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?)
 	`
 
 	_, err := db.Exec(
 		query,
+		kategoriID,
 		nama,
 		jumlah,
 		jumlah,
@@ -204,6 +231,7 @@ func insertBarang(nama, jumlah, tempat, kondisi string) error {
 
 func updateBarang(
 	id int,
+	kategoriID string,
 	nama string,
 	jumlah string,
 	tempat string,
@@ -212,6 +240,7 @@ func updateBarang(
 	query := `
 	UPDATE barang
 	SET
+		kategori_id = ?,
 		nama = ?,
 		jumlah = ?,
 		tempat = ?,
@@ -221,6 +250,7 @@ func updateBarang(
 
 	_, err := db.Exec(
 		query,
+		kategoriID,
 		nama,
 		jumlah,
 		tempat,
