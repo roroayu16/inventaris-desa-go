@@ -79,6 +79,88 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, barangList)
 }
 
+func kategoriHandler(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query(`
+		SELECT id, kode, nama
+		FROM kategori
+		ORDER BY nama
+	`)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	defer rows.Close()
+	var kategori []Kategori
+
+	for rows.Next() {
+		var k Kategori
+		err := rows.Scan(
+			&k.ID,
+			&k.Kode,
+			&k.Nama,
+		)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		kategori = append(kategori, k)
+	}
+
+	t, err := template.ParseFiles(
+		"templates/kategori.html",
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	t.Execute(w, kategori)
+}
+
+func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "POST" {
+
+		kode := r.FormValue("kode")
+		nama := r.FormValue("nama")
+
+		_, err := db.Exec(`
+			INSERT INTO kategori (kode, nama)
+			VALUES (?, ?)
+		`, kode, nama)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		http.Redirect(
+			w,
+			r,
+			"/kategori",
+			http.StatusSeeOther,
+		)
+
+		return
+	}
+
+	t, err := template.ParseFiles(
+		"templates/tambah_kategori.html",
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	t.Execute(w, nil)
+}
+
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 

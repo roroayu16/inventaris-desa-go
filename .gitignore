@@ -1,3 +1,5 @@
 air
 tmp/
 *.exe
+*.db
+*.db-journal

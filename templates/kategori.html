@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Data Kategori</title>
+    </head>
+
+    <body>
+        <h1>Data Kategori</h1>
+        <a href="/kategori/tambah">
+            Tambah Kategori
+        </a>
+
+        <br><br>
+
+        <table border="1">
+            <tr>
+                <th>Kode</th>
+                <th>Nama</th>
+            </tr>
+
+            {{range .}}
+            <tr>
+                <td>{{.Kode}}</td>
+                <td>{{.Nama}}</td>
+            </tr>
+            {{end}}
+
+        </table>
+    </body>
+</html>

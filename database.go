@@ -26,7 +26,7 @@ func initDB() {
 
 func createTable() {
 	//barang
-	query := `
+	queryBarang := `
 	CREATE TABLE IF NOT EXISTS barang (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		nama TEXT NOT NULL,
@@ -37,8 +37,21 @@ func createTable() {
 	);
 	`
 
-	_, err := db.Exec(query)
+	_, err := db.Exec(queryBarang)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	//Kategori
+	queryKategori := `
+	CREATE TABLE IF NOT EXISTS kategori (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		kode TEXT NOT NULL UNIQUE,
+		nama TEXT NOT NULL UNIQUE
+	);
+	`
+
+	if _, err := db.Exec(queryKategori); err != nil {
 		log.Fatal(err)
 	}
 
@@ -52,7 +65,6 @@ func createTable() {
 	);
 	`
 	_, err = db.Exec(queryMasuk)
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,7 +79,6 @@ func createTable() {
 	);
 	`
 	_, err = db.Exec(queryKeluar)
-
 	if err != nil {
 		log.Fatal(err)
 	}

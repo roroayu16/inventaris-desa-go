@@ -15,6 +15,12 @@ type Barang struct {
 	Jumlah int
 }
 
+type Kategori struct {
+	ID   int
+	Kode string
+	Nama string
+}
+
 type HomeData struct {
 	TotalBarang int
 	TotalStok   int
