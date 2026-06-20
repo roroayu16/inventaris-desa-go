@@ -720,14 +720,15 @@ func exportBarangExcelHandler(
 
 	f := excelize.NewFile()
 
-	sheetName := "Data Inventaris SIPCARA"
+	sheetName := "Data Inventaris SIPACAR"
 	f.SetSheetName("Sheet1", sheetName)
 	f.SetCellValue(sheetName, "A1", "Kode Barang")
-	f.SetCellValue(sheetName, "B1", "Nama Barang")
-	f.SetCellValue(sheetName, "C1", "tempat")
-	f.SetCellValue(sheetName, "D1", "Kondisi")
-	f.SetCellValue(sheetName, "E1", "Stok Awal")
-	f.SetCellValue(sheetName, "F1", "Stok Akhir")
+	f.SetCellValue(sheetName, "B1", "Kategori")
+	f.SetCellValue(sheetName, "C1", "Nama Barang")
+	f.SetCellValue(sheetName, "D1", "Tempat")
+	f.SetCellValue(sheetName, "E1", "Kondisi")
+	f.SetCellValue(sheetName, "F1", "Stok Awal")
+	f.SetCellValue(sheetName, "G1", "Stok Akhir")
 
 	for i, barang := range barangList {
 		row := i + 2
@@ -741,30 +742,36 @@ func exportBarangExcelHandler(
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("B%d", row),
-			barang.Nama,
+			barang.Kategori,
 		)
 
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("C%d", row),
-			barang.Tempat,
+			barang.Nama,
 		)
 
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("D%d", row),
-			barang.Kondisi,
+			barang.Tempat,
 		)
 
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("E%d", row),
-			barang.StokAwal,
+			barang.Kondisi,
 		)
 
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("F%d", row),
+			barang.StokAwal,
+		)
+
+		f.SetCellValue(
+			sheetName,
+			fmt.Sprintf("G%d", row),
 			barang.Jumlah,
 		)
 	}
