@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -21,6 +23,7 @@ func initDB() {
 
 	createTable()
 	migrateBarangKategori()
+	migrateKodeBarang()
 
 	log.Println("Database INIT Success")
 }
@@ -93,16 +96,96 @@ func migrateBarangKategori() {
 	`)
 
 	if err != nil {
-		log.Println("Migration kategori_id dilewati:", err)
+		if strings.Contains(err.Error(), "duplicate column name") {
+			return
+		}
+
+		log.Println(err)
+		return
 	}
 
 	log.Println("Migration kategori_id berhasil")
+}
+
+func migrateKodeBarang() {
+
+	_, err := db.Exec(`
+		ALTER TABLE barang
+		ADD COLUMN kode_barang TEXT
+	`)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate column name") {
+			return
+		}
+
+		log.Println(err)
+		return
+	}
+
+	log.Println("Migration kode_barang berhasil")
+}
+
+func generateKodeBarang(kategoriID string) (string, error) {
+
+	var kodeKategori string
+
+	err := db.QueryRow(`
+		SELECT kode
+		FROM kategori
+		WHERE id = ?
+	`, kategoriID).Scan(&kodeKategori)
+
+	if err != nil {
+		return "", err
+	}
+
+	var kodeTerakhir string
+
+	err = db.QueryRow(`
+		SELECT kode_barang
+		FROM barang
+		WHERE kategori_id = ?
+		ORDER BY kode_barang DESC
+		LIMIT 1
+	`, kategoriID).Scan(&kodeTerakhir)
+
+	if err == sql.ErrNoRows {
+		return fmt.Sprintf(
+			"%s-%03d",
+			kodeKategori,
+			1,
+		), nil
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	var nomor int
+
+	fmt.Sscanf(
+		kodeTerakhir,
+		kodeKategori+"-%d",
+		&nomor,
+	)
+
+	nomor++
+
+	kodeBaru := fmt.Sprintf(
+		"%s-%03d",
+		kodeKategori,
+		nomor,
+	)
+
+	return kodeBaru, nil
 }
 
 func getAllBarang() ([]Barang, error) {
 	rows, err := db.Query(`
 		SELECT 
 			b.id,
+			b.kode_barang,
 			k.nama AS kategori, 
 			b.nama,
 			b.tempat, 
@@ -147,6 +230,7 @@ func getAllBarang() ([]Barang, error) {
 		var b Barang
 		err := rows.Scan(
 			&b.ID,
+			&b.KodeBarang,
 			&b.Kategori,
 			&b.Nama,
 			&b.Tempat,
@@ -173,6 +257,7 @@ func getBarangByID(id int) (Barang, error) {
 	query := `
 	SELECT
 		b.id,
+		b.kode_barang,
 		b.kategori_id,
 		k.nama,
 		b.nama,
@@ -191,6 +276,7 @@ func getBarangByID(id int) (Barang, error) {
 		id,
 	).Scan(
 		&barang.ID,
+		&barang.KodeBarang,
 		&barang.KategoriID,
 		&barang.Kategori,
 		&barang.Nama,
@@ -204,8 +290,15 @@ func getBarangByID(id int) (Barang, error) {
 }
 
 func insertBarang(kategoriID, nama, jumlah, tempat, kondisi string) error {
+	kodeBarang, err := generateKodeBarang(kategoriID)
+
+	if err != nil {
+		return err
+	}
+
 	query := `
 	INSERT INTO barang (
+		kode_barang,
 		kategori_id,
 		nama,
 		stok_awal,
@@ -213,11 +306,12 @@ func insertBarang(kategoriID, nama, jumlah, tempat, kondisi string) error {
 		tempat,
 		kondisi
 	)
-	VALUES (?, ?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
-	_, err := db.Exec(
+	_, err = db.Exec(
 		query,
+		kodeBarang,
 		kategoriID,
 		nama,
 		jumlah,

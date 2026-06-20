@@ -736,7 +736,7 @@ func exportBarangExcelHandler(
 		f.SetCellValue(
 			sheetName,
 			fmt.Sprintf("A%d", row),
-			fmt.Sprintf("BR-%d", barang.ID),
+			barang.KodeBarang,
 		)
 
 		f.SetCellValue(

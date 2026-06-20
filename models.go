@@ -4,6 +4,7 @@ type Barang struct {
 	ID         int
 	KategoriID int
 	Kategori   string
+	KodeBarang string
 
 	Nama    string
 	Tempat  string
