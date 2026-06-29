@@ -22,8 +22,7 @@ func initDB() {
 	}
 
 	createTable()
-	migrateBarangKategori()
-	migrateKodeBarang()
+	migrateDatabase()
 
 	log.Println("Database INIT Success")
 }
@@ -88,42 +87,35 @@ func createTable() {
 	}
 }
 
-func migrateBarangKategori() {
+func addColumn(table, column, dataType string) {
+	query := fmt.Sprintf(`
+		ALTER TABLE %s
+		ADD COLUMN %s %s
+	`, table, column, dataType)
 
-	_, err := db.Exec(`
-		ALTER TABLE barang
-		ADD COLUMN kategori_id INTEGER
-	`)
+	_, err := db.Exec(query)
 
-	if err != nil {
-		if strings.Contains(err.Error(), "duplicate column name") {
-			return
-		}
-
-		log.Println(err)
+	if err == nil {
+		log.Printf("Migration: %s.%s berhasil", table, column)
 		return
 	}
 
-	log.Println("Migration kategori_id berhasil")
+	if strings.Contains(err.Error(), "duplicate column name") {
+		log.Printf("Migration: %s.%s sudah ada", table, column)
+		return
+	}
+
+	log.Println(err)
 }
 
-func migrateKodeBarang() {
+func migrateDatabase() {
 
-	_, err := db.Exec(`
-		ALTER TABLE barang
-		ADD COLUMN kode_barang TEXT
-	`)
-
-	if err != nil {
-		if strings.Contains(err.Error(), "duplicate column name") {
-			return
-		}
-
-		log.Println(err)
-		return
-	}
-
-	log.Println("Migration kode_barang berhasil")
+	addColumn("barang", "kategori_id", "INTEGER")
+	addColumn("barang", "kode_barang", "TEXT")
+	addColumn("barang_masuk", "keterangan", "TEXT")
+	addColumn("barang_keluar", "diambil_oleh", "TEXT")
+	addColumn("barang_keluar", "keperluan", "TEXT")
+	addColumn("barang_keluar", "keterangan", "TEXT")
 }
 
 func generateKodeBarang(kategoriID string) (string, error) {
@@ -440,13 +432,17 @@ func getTotalBarangKeluar() (int, error) {
 func getAllBarangForDropDown() ([]Barang, error) {
 	rows, err := db.Query(`
 		SELECT
-			id,
-			nama,
-			jumlah,
-			tempat,
-			kondisi
-		FROM barang
-		ORDER BY nama
+			b.id,
+			b.kode_barang,
+			k.nama,
+			b.nama,
+			b.tempat,
+			b.kondisi,
+			b.jumlah
+		FROM barang b
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
+		ORDER BY b.kode_barang
 	`)
 
 	if err != nil {
@@ -462,10 +458,12 @@ func getAllBarangForDropDown() ([]Barang, error) {
 
 		err := rows.Scan(
 			&b.ID,
+			&b.KodeBarang,
+			&b.Kategori,
 			&b.Nama,
-			&b.Jumlah,
 			&b.Tempat,
 			&b.Kondisi,
+			&b.Jumlah,
 		)
 
 		if err != nil {
@@ -482,14 +480,16 @@ func insertBarangMasuk(
 	barangID int,
 	jumlah int,
 	tanggal string,
+	keterangan string,
 ) error {
 	query := `
 	INSERT INTO barang_masuk (
 		barang_id,
 		jumlah,
-		tanggal
+		tanggal,
+		keterangan
 	)
-	VALUES (?, ?, ?)
+	VALUES (?, ?, ?, ?)
 	`
 
 	_, err := db.Exec(
@@ -497,6 +497,7 @@ func insertBarangMasuk(
 		barangID,
 		jumlah,
 		tanggal,
+		keterangan,
 	)
 
 	return err
@@ -525,14 +526,20 @@ func insertBarangKeluar(
 	barangID int,
 	jumlah int,
 	tanggal string,
+	diambilOleh string,
+	keperluan string,
+	keterangan string,
 ) error {
 	query := `
 	INSERT INTO barang_keluar (
 		barang_id,
 		jumlah,
-		tanggal
+		tanggal,
+		diambil_oleh,
+		keperluan,
+		keterangan
 	)
-	VALUES (?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?)
 	`
 
 	_, err := db.Exec(
@@ -540,6 +547,9 @@ func insertBarangKeluar(
 		barangID,
 		jumlah,
 		tanggal,
+		diambilOleh,
+		keperluan,
+		keterangan,
 	)
 
 	return err
@@ -569,12 +579,19 @@ func getAllBarangMasuk() ([]BarangMasuk, error) {
 		SELECT
 			bm.id,
 			bm.barang_id,
+			b.kode_barang,
+			k.nama,
 			b.nama,
+			b.tempat,
+			b.kondisi,
 			bm.jumlah,
-			bm.tanggal
+			bm.tanggal,
+			bm.keterangan
 		FROM barang_masuk bm
 		JOIN barang b
-		ON bm.barang_id = b.id
+			ON bm.barang_id = b.id
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
 		ORDER BY bm.id DESC
 	`)
 
@@ -591,9 +608,14 @@ func getAllBarangMasuk() ([]BarangMasuk, error) {
 		err := rows.Scan(
 			&b.ID,
 			&b.BarangID,
+			&b.KodeBarang,
+			&b.Kategori,
 			&b.NamaBarang,
+			&b.Tempat,
+			&b.Kondisi,
 			&b.Jumlah,
 			&b.Tanggal,
+			&b.Keterangan,
 		)
 
 		if err != nil {
@@ -609,15 +631,24 @@ func getAllBarangMasuk() ([]BarangMasuk, error) {
 func getAllBarangKeluar() ([]BarangKeluar, error) {
 	rows, err := db.Query(`
 		SELECT
-			bm.id,
-			bm.barang_id,
+			bk.id,
+			bk.barang_id,
+			b.kode_barang,
+			k.nama,
 			b.nama,
-			bm.jumlah,
-			bm.tanggal
-		FROM barang_keluar bm
+			b.tempat,
+			b.kondisi,
+			bk.jumlah,
+			bk.tanggal,
+			bk.diambil_oleh,
+			bk.keperluan,
+			bk.keterangan
+		FROM barang_keluar bk
 		JOIN barang b
-		ON bm.barang_id = b.id
-		ORDER BY bm.id DESC
+			ON bk.barang_id = b.id
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
+		ORDER BY bk.id DESC
 	`)
 
 	if err != nil {
@@ -633,9 +664,16 @@ func getAllBarangKeluar() ([]BarangKeluar, error) {
 		err := rows.Scan(
 			&b.ID,
 			&b.BarangID,
+			&b.KodeBarang,
+			&b.Kategori,
 			&b.NamaBarang,
+			&b.Tempat,
+			&b.Kondisi,
 			&b.Jumlah,
 			&b.Tanggal,
+			&b.DiambilOleh,
+			&b.Keperluan,
+			&b.Keterangan,
 		)
 
 		if err != nil {
@@ -651,13 +689,23 @@ func getAllBarangKeluar() ([]BarangKeluar, error) {
 func getBarangMasukByBarangID(barangID int) ([]BarangMasuk, error) {
 	rows, err := db.Query(`
 		SELECT
-			id,
-			barang_id,
-			jumlah,
-			tanggal
-		FROM barang_masuk
-		WHERE barang_id = ?
-		ORDER BY tanggal DESC
+			bm.id,
+			bm.barang_id,
+			b.kode_barang,
+			k.nama,
+			b.nama,
+			b.tempat,
+			b.kondisi,
+			bm.jumlah,
+			bm.tanggal,
+			bm.keterangan
+		FROM barang_masuk bm
+		JOIN barang b
+			ON bm.barang_id = b.id
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
+		WHERE bm.barang_id = ?
+		ORDER BY bm.tanggal DESC
 	`, barangID)
 
 	if err != nil {
@@ -673,8 +721,14 @@ func getBarangMasukByBarangID(barangID int) ([]BarangMasuk, error) {
 		err := rows.Scan(
 			&b.ID,
 			&b.BarangID,
+			&b.KodeBarang,
+			&b.Kategori,
+			&b.NamaBarang,
+			&b.Tempat,
+			&b.Kondisi,
 			&b.Jumlah,
 			&b.Tanggal,
+			&b.Keterangan,
 		)
 
 		if err != nil {
@@ -689,13 +743,25 @@ func getBarangMasukByBarangID(barangID int) ([]BarangMasuk, error) {
 func getBarangKeluarByBarangID(barangID int) ([]BarangKeluar, error) {
 	rows, err := db.Query(`
 		SELECT
-			id,
-			barang_id,
-			jumlah,
-			tanggal
-		FROM barang_keluar
-		WHERE barang_id = ?
-		ORDER BY tanggal DESC
+			bk.id,
+			bk.barang_id,
+			b.kode_barang,
+			k.nama,
+			b.nama,
+			b.tempat,
+			b.kondisi,
+			bk.jumlah,
+			bk.tanggal,
+			bk.diambil_oleh,
+			bk.keperluan,
+			bk.keterangan
+		FROM barang_keluar bk
+		JOIN barang b
+			ON bk.barang_id = b.id
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
+		WHERE bk.barang_id = ?
+		ORDER BY bk.tanggal DESC
 	`, barangID)
 
 	if err != nil {
@@ -711,8 +777,16 @@ func getBarangKeluarByBarangID(barangID int) ([]BarangKeluar, error) {
 		err := rows.Scan(
 			&b.ID,
 			&b.BarangID,
+			&b.KodeBarang,
+			&b.Kategori,
+			&b.NamaBarang,
+			&b.Tempat,
+			&b.Kondisi,
 			&b.Jumlah,
 			&b.Tanggal,
+			&b.DiambilOleh,
+			&b.Keperluan,
+			&b.Keterangan,
 		)
 
 		if err != nil {

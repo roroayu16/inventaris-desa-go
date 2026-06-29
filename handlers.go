@@ -333,6 +333,7 @@ func barangMasukHandler(
 		barangIDStr := r.FormValue("barang_id")
 		jumlahStr := r.FormValue("jumlah")
 		tanggal := r.FormValue("tanggal")
+		keterangan := r.FormValue("keterangan")
 
 		barangID, err := strconv.Atoi(barangIDStr)
 
@@ -360,6 +361,7 @@ func barangMasukHandler(
 			barangID,
 			jumlah,
 			tanggal,
+			keterangan,
 		)
 
 		if err != nil {
@@ -386,7 +388,7 @@ func barangMasukHandler(
 		}
 
 		http.Redirect(
-			w, r, "/barang", http.StatusSeeOther,
+			w, r, "/barang-masuk", http.StatusSeeOther,
 		)
 		return
 	}
@@ -437,6 +439,9 @@ func barangKeluarHandler(
 		barangIDStr := r.FormValue("barang_id")
 		jumlahStr := r.FormValue("jumlah")
 		tanggal := r.FormValue("tanggal")
+		diambilOleh := r.FormValue("diambil_oleh")
+		keperluan := r.FormValue("keperluan")
+		keterangan := r.FormValue("keterangan")
 
 		barangID, err := strconv.Atoi(barangIDStr)
 
@@ -484,6 +489,9 @@ func barangKeluarHandler(
 			barangID,
 			jumlah,
 			tanggal,
+			diambilOleh,
+			keperluan,
+			keterangan,
 		)
 
 		if err != nil {
@@ -510,7 +518,7 @@ func barangKeluarHandler(
 		}
 
 		http.Redirect(
-			w, r, "/barang", http.StatusSeeOther,
+			w, r, "/barang-keluar", http.StatusSeeOther,
 		)
 		return
 	}

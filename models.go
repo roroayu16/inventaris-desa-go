@@ -32,17 +32,29 @@ type HomeData struct {
 type BarangMasuk struct {
 	ID         int
 	BarangID   int
+	KodeBarang string
+	Kategori   string
 	NamaBarang string
+	Tempat     string
+	Kondisi    string
 	Jumlah     int
 	Tanggal    string
+	Keterangan string
 }
 
 type BarangKeluar struct {
-	ID         int
-	BarangID   int
-	NamaBarang string
-	Jumlah     int
-	Tanggal    string
+	ID          int
+	BarangID    int
+	KodeBarang  string
+	Kategori    string
+	NamaBarang  string
+	Tempat      string
+	Kondisi     string
+	Jumlah      int
+	Tanggal     string
+	DiambilOleh string
+	Keperluan   string
+	Keterangan  string
 }
 
 type BarangMasukPageData struct {
