@@ -1,33 +1,86 @@
 <!DOCTYPE html>
 <html>
-<head>
+    <head>
+
     <title>Tambah Kategori</title>
-</head>
-<body>
 
-<h1>Tambah Kategori</h1>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
-<form method="POST">
+    <style>
 
-    <p>
-        Kode Kategori
-    </p>
+        body{
+            background-color:#eef6ef;
+        }
 
-    <input type="text" name="kode">
+        .card{
+            border:none;
+            border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,.08);
+        }
 
-    <p>
-        Nama Kategori
-    </p>
+    </style>
 
-    <input type="text" name="nama">
+    </head>
 
-    <br><br>
+    <body>
+        <div class="container mt-4">
+            <div class="mb-3">
+                <a  href="/kategori"
+                    class="btn btn-secondary">
+                    ← Kembali
+                </a>
+            </div>
 
-    <button type="submit">
-        Simpan
-    </button>
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h1 class="fw-bold mb-1">
+                            Tambah Kategori
+                        </h1>
 
-</form>
+                        <p class="text-muted mb-0">
+                            Tambahkan kategori inventaris baru
+                        </p>
+                    </div>
 
-</body>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Kode Kategori
+                            </label>
+
+                            <input type="text"
+                                    name="kode"
+                                    class="form-control"
+                                    placeholder="Contoh: ATK"
+                                    required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Nama Kategori
+                            </label>
+
+                            <input type="text"
+                                    name="nama"
+                                    class="form-control"
+                                    placeholder="Contoh: Alat Tulis Kantor"
+                                    required>
+                        </div>
+
+                        <div class="mt-4">
+                            <button
+                                type="submit"
+                                class="btn btn-success">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+
 </html>

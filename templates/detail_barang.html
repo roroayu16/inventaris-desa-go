@@ -19,22 +19,6 @@
             box-shadow:0 2px 8px rgba(0,0,0,.08);
         }
 
-        .info-label{
-            font-size:.85rem;
-            color:#6c757d;
-            margin-bottom:2px;
-        }
-
-        .info-value{
-            font-weight:600;
-            margin-bottom:18px;
-        }
-
-        .section-title{
-            font-weight:700;
-            margin-bottom:20px;
-        }
-
         .table td,
         .table th{
             vertical-align:middle;
@@ -62,102 +46,104 @@
 
         <div class="card-body">
 
-            <h3 class="section-title">
+            <h3 class="fw-bold mb-4">
                 Detail Barang
             </h3>
 
-            <div class="row">
-
-                <!-- KOLOM KIRI -->
-
-                <div class="col-md-6">
-
-                    <div class="info-label">
-                        Kode Barang
-                    </div>
-
-                    <div class="info-value">
-                        {{.Barang.KodeBarang}}
-                    </div>
-
-                    <div class="info-label">
-                        Kategori
-                    </div>
-
-                    <div class="info-value">
-                        {{.Barang.Kategori}}
-                    </div>
-
-                    <div class="info-label">
-                        Nama Barang
-                    </div>
-
-                    <div class="info-value">
-                        {{.Barang.Nama}}
-                    </div>
-
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Kode Barang
                 </div>
 
-                <!-- KOLOM KANAN -->
+                <div class="col-md-9 fw-semibold">
+                    {{.Barang.KodeBarang}}
+                </div>
+            </div>
 
-                <div class="col-md-6">
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Kategori
+                </div>
 
-                    <div class="info-label">
-                        Tempat
-                    </div>
+                <div class="col-md-9 fw-semibold">
+                    {{.Barang.Kategori}}
+                </div>
+            </div>
 
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Nama Barang
+                </div>
+
+                <div class="col-md-9 fw-semibold">
+                    {{.Barang.Nama}}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Tempat
+                </div>
+
+                <div class="col-md-9 fw-semibold">
+                    {{.Barang.Tempat}}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Kondisi
+                </div>
+
+                <div class="col-md-9">
                     <div class="info-value">
-                        {{.Barang.Tempat}}
-                    </div>
-
-                    <div class="info-label">
-                        Kondisi
-                    </div>
-
-                    <div class="info-value">
+                        {{if eq .Barang.Kondisi "Baik"}}
 
                         <span class="badge bg-success">
-                            {{.Barang.Kondisi}}
+                            Baik
                         </span>
 
+                        {{end}}
+
+                        {{if eq .Barang.Kondisi "Rusak Ringan"}}
+
+                        <span class="badge bg-warning text-dark">
+                            Rusak Ringan
+                        </span>
+
+                        {{end}}
+
+                        {{if eq .Barang.Kondisi "Rusak Berat"}}
+
+                        <span class="badge bg-danger">
+                            Rusak Berat
+                        </span>
+
+                        {{end}}
                     </div>
+                </div>
+            </div>
 
-                    <div class="row">
-
-                        <div class="col-6">
-
-                            <div class="info-label">
-                                Stok Awal
-                            </div>
-
-                            <div class="info-value">
-                                {{.Barang.StokAwal}}
-                            </div>
-
-                        </div>
-
-                        <div class="col-6">
-
-                            <div class="info-label">
-                                Stok Saat Ini
-                            </div>
-
-                            <div class="info-value">
-
-                                <span class="badge bg-primary fs-6">
-
-                                    {{.Barang.Jumlah}}
-
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Stok Awal
                 </div>
 
+                <div class="col-md-9 fw-semibold">
+                    {{.Barang.StokAwal}}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3 text-muted">
+                    Stok Saat Ini
+                </div>
+
+                <div class="col-md-9">
+                    <span class="badge bg-primary">
+                        {{.Barang.Jumlah}}
+                    </span>
+                </div>
             </div>
 
         </div>

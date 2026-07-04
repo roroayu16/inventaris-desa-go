@@ -1,35 +1,91 @@
 <!DOCTYPE html>
 <html>
-<head>
+    <head>
+
     <title>Edit Kategori</title>
-</head>
-<body>
 
-<h1>Edit Kategori</h1>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
 
-<form method="POST">
+    <style>
 
-    <p>Kode Kategori</p>
-    <input
-        type="text"
-        name="kode"
-        value="{{.Kode}}"
-    >
+        body{
+            background-color:#eef6ef;
+        }
 
-    <p>Nama Kategori</p>
-    <input
-        type="text"
-        name="nama"
-        value="{{.Nama}}"
-    >
+        .card{
+            border:none;
+            border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,.08);
+        }
 
-    <br><br>
+    </style>
 
-    <button type="submit">
-        Simpan Perubahan
-    </button>
+    </head>
 
-</form>
+    <body>
+        <div class="container mt-4">
+            <div class="mb-3">
+                <a  href="/kategori"
+                    class="btn btn-secondary">
+                    ← Kembali
+                </a>
+            </div>
 
-</body>
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h1 class="fw-bold mb-1">
+                            Edit Kategori
+                        </h1>
+
+                        <p class="text-muted mb-0">
+                            Perbarui data kategori inventaris
+                        </p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Kode Kategori
+                            </label>
+
+                            <input type="text"
+                                    name="kode"
+                                    class="form-control"
+                                    value="{{.Kode}}"
+                                    required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Nama Kategori
+                            </label>
+
+                            <input type="text"
+                                    name="nama"
+                                    class="form-control"
+                                    value="{{.Nama}}"
+                                    required>
+                        </div>
+
+                        <div class="mt-4" d-flex gap-2>
+                            <a  href="/kategori"
+                                class="btn btn-secondary">
+                                Batal
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-warning">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+
 </html>

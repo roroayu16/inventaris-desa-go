@@ -1,43 +1,221 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Data Kategori</title>
+
+    <title>Data Kategori</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <style>
+
+        body{
+            background-color:#eef6ef;
+        }
+
+        .card{
+            border:none;
+            border-radius:12px;
+            box-shadow:0 2px 8px rgba(0,0,0,.08);
+        }
+
+        .modal-content{
+            border:none;
+            border-radius:15px;
+        }
+
+        .modal-header{
+            border-bottom:none;
+        }
+
+        .modal-footer{
+            border-top:none;
+        }
+
+        .modal-body{
+            padding-top:0;
+        }
+
+    </style>
+
     </head>
 
     <body>
-        <h1>Data Kategori</h1>
-        <a href="/kategori/tambah">
-            Tambah Kategori
-        </a>
+        <div class="container mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h1 class="fw-bold mb-1">
+                        Data Kategori
+                    </h1>
 
-        <br><br>
+                    <p class="text-muted mb-0">
+                        Master Data Kategori Inventaris
+                    </p>
+                </div>
 
-        <table border="1">
-            <tr>
-                <th>Kode</th>
-                <th>Nama</th>
-                <th>Aksi</th>
-            </tr>
-
-            {{range .}}
-            <tr>
-                <td>{{.Kode}}</td>
-                <td>{{.Nama}}</td>
-                <td>
-                    <a href="/kategori/edit?id={{.ID}}">
-                        Edit
+                <div class="d-flex gap-2">
+                    <a
+                        href="/"
+                        class="btn btn-secondary">
+                        ← Kembali
                     </a>
 
-                    |
-                    <a href="/kategori/hapus?id={{.ID}}"
-                        onclick="return confirm('Yakin ingin menghapus kategori ini?')"
-                    >
-                        Hapus
+                    <a
+                        href="/kategori/tambah"
+                        class="btn btn-success">
+                        + Tambah Kategori
                     </a>
-                </td>
-            </tr>
-            {{end}}
+                </div>
+            </div>
 
-        </table>
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-striped table-hover align middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th class="text-center">
+                                    Kode
+                                </th>
+
+                                <th class="text-center">
+                                    Nama Kategori
+                                </th>
+
+                                <th class="text-center">
+                                    Aksi
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {{range .}}
+
+                            <tr>
+                                <td class="text-center">
+                                    {{.Kode}}
+                                </td>
+
+                                <td class="text-center">
+                                    {{.Nama}}
+                                </td>
+
+                                <td class="text-center">
+                                    <a 
+                                        href="/kategori/edit?id={{.ID}}"
+                                        class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm btn-delete"
+                                        
+                                        data-id="{{.ID}}"
+                                        data-kode="{{.Kode}}"
+                                        data-nama="{{.Nama}}"
+                                        
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#hapusModal">
+                                        Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade"
+             id="hapusModal"
+             tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-danger">
+                            🗑 Hapus Kategori
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="text-muted mb-4">
+                            Anda yakin ingin menghapus kategori berikut?
+                        </p>
+
+                        <div class="border rounded p-3 bg-light">
+                            <div class="mb-3">
+                                <small class="text-muted d-block">
+                                    Kode Kategori
+                                </small>
+
+                                <span
+                                    id="modalKode"
+                                    class="fw-semibold fs-5">
+                                </span>
+                            </div>
+
+                            <div>
+                                <small class="text-muted d-block">
+                                    Nama Kategori
+                                </small>
+
+                                <span
+                                    id="modalNama"
+                                    class="fw-semibold fs-5">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-4 mb-0">
+                            <strong>⚠ Perhatian!</strong>
+                            Data yang telah dihapus tidak dapat dikembalikan.
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <a 
+                            id="btnHapus"
+                            href="#"
+                            class="btn btn-danger">
+                            Ya, Hapus
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.querySelectorAll(".btn-delete")
+            .forEach(function(button){
+                button.addEventListener("click", function(){
+                    document.getElementById("modalKode").textContent =
+                        this.dataset.kode;
+                    
+                    document.getElementById("modalNama").textContent =
+                        this.dataset.nama;
+                    
+                    document.getElementById("btnHapus").href =
+                        "kategori/hapus?id=" + this.dataset.id;
+                });
+            });
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     </body>
+
 </html>

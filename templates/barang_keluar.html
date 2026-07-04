@@ -92,7 +92,7 @@
                             <input
                                 type="text"
                                 id="kategoriBarang"
-                                class="form-control"
+                                class="form-control bg-body-secondary"
                                 readonly>
 
                         </div>
@@ -106,7 +106,7 @@
                             <input
                                 type="text"
                                 id="namaBarang"
-                                class="form-control"
+                                class="form-control bg-body-secondary"
                                 readonly>
 
                         </div>
@@ -126,7 +126,7 @@
                             <input
                                 type="text"
                                 id="tempatBarang"
-                                class="form-control"
+                                class="form-control bg-body-secondary"
                                 readonly>
 
                         </div>
@@ -137,11 +137,10 @@
                                 Kondisi
                             </label>
 
-                            <input
-                                type="text"
+                            <div
                                 id="kondisiBarang"
-                                class="form-control"
-                                readonly>
+                                class="form-control bg-body-secondary d-flex align-items-center">
+                            </div>
 
                         </div>
 
@@ -352,8 +351,20 @@ function updateBarangInfo() {
     document.getElementById("tempatBarang").value =
         option.dataset.tempat;
 
-    document.getElementById("kondisiBarang").value =
-        option.dataset.kondisi;
+    const kondisi = option.dataset.kondisi;
+
+    const badge = document.getElementById("kondisiBarang");
+
+    if (kondisi === "Baik") {
+        badge.innerHTML =
+            '<span class="badge bg-success">Baik</span>';
+    } else if (kondisi === "Rusak Ringan") {
+        badge.innerHTML =
+            '<span class="badge bg-warning text-dark">Rusak Ringan</span>';
+    } else {
+        badge.innerHTML =
+            '<span class="badge bg-danger">Rusak Berat</span>';
+    }
 
 }
 
