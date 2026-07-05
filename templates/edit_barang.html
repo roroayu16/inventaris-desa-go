@@ -16,6 +16,26 @@
                 border-radius:12px;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             }
+
+            .navbar{
+                min-height: 70px;
+            }
+
+            .navbar-brand{
+                font-size: 1.35rem;
+            }
+
+            .nav-link{
+                font-weight: 500;
+            }
+
+            .nav-link:hover{
+                color: #198754 !important;
+            }
+
+            .dropdown-item:hover{
+                background: #eef6ef;
+            }
         </style>
     </head>
 
@@ -48,7 +68,7 @@
                         <input 
                             type="hidden"
                             name="id"
-                            value="{{.Barang.ID}}">
+                            value="{{.Data.Barang.ID}}">
 
                         <div class="row mb-3">
                             <div class="col-md-12">
@@ -61,10 +81,10 @@
                                     class="form-select"
                                     required>
 
-                                    {{range .Kategori}}
+                                    {{range .Data.Kategori}}
                                     <option 
                                         value="{{.ID}}"
-                                        {{if eq .ID $.Barang.KategoriID}}selected{{end}}>
+                                        {{if eq .ID $.Data.Barang.KategoriID}}selected{{end}}>
                                         {{.Nama}}
                                     </option>
                                     {{end}}
@@ -81,7 +101,7 @@
                                 <input 
                                     type="text"
                                     name="nama"
-                                    value="{{.Barang.Nama}}"
+                                    value="{{.Data.Barang.Nama}}"
                                     class="form-control"
                                     required>
                             </div>
@@ -93,7 +113,7 @@
                                 <input 
                                     type="text" 
                                     name="tempat"
-                                    value="{{.Barang.Tempat}}"
+                                    value="{{.Data.Barang.Tempat}}"
                                     class="form-control"
                                     required>
                             </div>    
@@ -106,7 +126,7 @@
                                 </label>
                                 <input 
                                     type="number"
-                                    value="{{.Barang.StokAwal}}"
+                                    value="{{.Data.Barang.StokAwal}}"
                                     class="form-control"
                                     readonly>
                                 
@@ -125,17 +145,17 @@
                                     class="form-select">
 
                                     <option value="Baik"
-                                        {{if eq .Barang.Kondisi "Baik"}}selected{{end}}>
+                                        {{if eq .Data.Barang.Kondisi "Baik"}}selected{{end}}>
                                         Baik
                                     </option>
 
                                     <option value="Rusak Ringan"
-                                        {{if eq .Barang.Kondisi "Rusak Ringan"}}selected{{end}}>
+                                        {{if eq .Data.Barang.Kondisi "Rusak Ringan"}}selected{{end}}>
                                         Rusak Ringan
                                     </option>
 
                                     <option value="Rusak Berat"
-                                        {{if eq .Barang.Kondisi "Rusak Berat"}}selected{{end}}>
+                                        {{if eq .Data.Barang.Kondisi "Rusak Berat"}}selected{{end}}>
                                         Rusak Berat
                                     </option>
 

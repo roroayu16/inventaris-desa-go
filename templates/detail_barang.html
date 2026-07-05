@@ -23,11 +23,33 @@
         .table th{
             vertical-align:middle;
         }
+
+        .navbar{
+            min-height: 70px;
+        }
+
+        .navbar-brand{
+            font-size: 1.35rem;
+        }
+
+        .nav-link{
+            font-weight: 500;
+        }
+
+        .nav-link:hover{
+            color: #198754 !important;
+        }
+
+        .dropdown-item:hover{
+            background: #eef6ef;
+        }
     </style>
 
 </head>
 
 <body>
+
+{{template "navbar" .}}
 
 <div class="container mt-4">
 
@@ -56,7 +78,7 @@
                 </div>
 
                 <div class="col-md-9 fw-semibold">
-                    {{.Barang.KodeBarang}}
+                    {{.Data.Barang.KodeBarang}}
                 </div>
             </div>
 
@@ -66,7 +88,7 @@
                 </div>
 
                 <div class="col-md-9 fw-semibold">
-                    {{.Barang.Kategori}}
+                    {{.Data.Barang.Kategori}}
                 </div>
             </div>
 
@@ -76,7 +98,7 @@
                 </div>
 
                 <div class="col-md-9 fw-semibold">
-                    {{.Barang.Nama}}
+                    {{.Data.Barang.Nama}}
                 </div>
             </div>
 
@@ -86,7 +108,7 @@
                 </div>
 
                 <div class="col-md-9 fw-semibold">
-                    {{.Barang.Tempat}}
+                    {{.Data.Barang.Tempat}}
                 </div>
             </div>
 
@@ -97,7 +119,7 @@
 
                 <div class="col-md-9">
                     <div class="info-value">
-                        {{if eq .Barang.Kondisi "Baik"}}
+                        {{if eq .Data.Barang.Kondisi "Baik"}}
 
                         <span class="badge bg-success">
                             Baik
@@ -105,7 +127,7 @@
 
                         {{end}}
 
-                        {{if eq .Barang.Kondisi "Rusak Ringan"}}
+                        {{if eq .Data.Barang.Kondisi "Rusak Ringan"}}
 
                         <span class="badge bg-warning text-dark">
                             Rusak Ringan
@@ -113,7 +135,7 @@
 
                         {{end}}
 
-                        {{if eq .Barang.Kondisi "Rusak Berat"}}
+                        {{if eq .Data.Barang.Kondisi "Rusak Berat"}}
 
                         <span class="badge bg-danger">
                             Rusak Berat
@@ -130,7 +152,7 @@
                 </div>
 
                 <div class="col-md-9 fw-semibold">
-                    {{.Barang.StokAwal}}
+                    {{.Data.Barang.StokAwal}}
                 </div>
             </div>
 
@@ -141,7 +163,7 @@
 
                 <div class="col-md-9">
                     <span class="badge bg-primary">
-                        {{.Barang.Jumlah}}
+                        {{.Data.Barang.Jumlah}}
                     </span>
                 </div>
             </div>
@@ -194,9 +216,9 @@
 
                             <tbody>
 
-                                {{if .RiwayatMasuk}}
+                                {{if .Data.RiwayatMasuk}}
 
-                                {{range .RiwayatMasuk}}
+                                {{range .Data.RiwayatMasuk}}
 
                                 <tr>
 
@@ -297,9 +319,9 @@
 
                             <tbody>
 
-                                {{if .RiwayatKeluar}}
+                                {{if .Data.RiwayatKeluar}}
 
-                                {{range .RiwayatKeluar}}
+                                {{range .Data.RiwayatKeluar}}
 
                                 <tr>
 
@@ -367,6 +389,8 @@
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -45,30 +44,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		TotalKeluar: totalKeluar,
 	}
 
-	tmpl, err := template.ParseFiles(
-		"templates/home.html",
-	)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	tmpl.Execute(w, data)
+	renderTemplate(w, "home.html", "dashboard", data)
 }
 
 func barangHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/barang.html")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	barangList, err := getAllBarang()
 
 	if err != nil {
@@ -76,7 +55,7 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl.Execute(w, barangList)
+	renderTemplate(w, "barang.html", "barang", barangList)
 }
 
 func kategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -110,16 +89,7 @@ func kategoriHandler(w http.ResponseWriter, r *http.Request) {
 		kategori = append(kategori, k)
 	}
 
-	t, err := template.ParseFiles(
-		"templates/kategori.html",
-	)
-
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	t.Execute(w, kategori)
+	renderTemplate(w, "kategori.html", "kategori", kategori)
 }
 
 func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -149,16 +119,7 @@ func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFiles(
-		"templates/tambah_kategori.html",
-	)
-
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	t.Execute(w, nil)
+	renderTemplate(w, "tambah_kategori.html", "", nil)
 }
 
 func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -214,16 +175,7 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := template.ParseFiles(
-		"templates/edit_kategori.html",
-	)
-
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	t.Execute(w, kategori)
+	renderTemplate(w, "edit_kategori.html", "", kategori)
 }
 
 func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -240,12 +192,7 @@ func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(
-		w,
-		r,
-		"/kategori",
-		http.StatusSeeOther,
-	)
+	http.Redirect(w, r, "/kategori", http.StatusSeeOther)
 }
 
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
@@ -275,13 +222,6 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.Redirect(w, r, "/barang", http.StatusSeeOther)
-		return
-	}
-
-	tmpl, err := template.ParseFiles("templates/tambah_barang.html")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -321,7 +261,7 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		Kategori: kategori,
 	}
 
-	tmpl.Execute(w, data)
+	renderTemplate(w, "tambah_barang.html", "", data)
 }
 
 func barangMasukHandler(
@@ -416,18 +356,7 @@ func barangMasukHandler(
 		RiwayatList: riwayatList,
 	}
 
-	tmpl, err := template.ParseFiles("templates/barang_masuk.html")
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	tmpl.Execute(w, data)
+	renderTemplate(w, "barang_masuk.html", "barang-masuk", data)
 }
 
 func barangKeluarHandler(
@@ -546,18 +475,7 @@ func barangKeluarHandler(
 		RiwayatList: riwayatList,
 	}
 
-	tmpl, err := template.ParseFiles("templates/barang_keluar.html")
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	tmpl.Execute(w, data)
+	renderTemplate(w, "barang_keluar.html", "barang-keluar", data)
 }
 
 func editBarangHandler(w http.ResponseWriter, r *http.Request) {
@@ -675,20 +593,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		Kategori: kategoriList,
 	}
 
-	tmpl, err := template.ParseFiles(
-		"templates/edit_barang.html",
-	)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	tmpl.Execute(w, data)
+	renderTemplate(w, "edit_barang.html", "", data)
 
 }
 
@@ -858,11 +763,5 @@ func detailBarangHandler(
 		RiwayatKeluar: riwayatKeluar,
 	}
 
-	tmpl := template.Must(
-		template.ParseFiles(
-			"templates/detail_barang.html",
-		),
-	)
-
-	tmpl.Execute(w, data)
+	renderTemplate(w, "detail_barang.html", "barang", data)
 }

@@ -1,0 +1,111 @@
+    {{define "navbar"}}
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-success" href="/">
+                SIPACAR
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto">
+                    
+                    <li class="nav-item">
+                        <a  class="nav-link {{if eq .ActivePage "dashboard"}}menu-active{{end}}"
+                            href="/">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a  class="nav-link dropdown-toggle
+                            {{if or (eq .ActivePage "barang") (eq .ActivePage "kategori")}}
+                            menu-active
+                            {{end}}" 
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown">
+                            Master Data
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a  class="dropdown-item {{if eq .ActivePage "barang"}}menu-active{{end}}"
+                                    href="/barang">
+                                    Data Barang
+                                </a>
+                            </li>
+
+                            <li>
+                                <a  class="dropdown-item {{if eq .ActivePage "kategori"}}menu-active{{end}}"
+                                    href="/kategori">
+                                    Kategori
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a  class="nav-link dropdown-toggle
+                            {{if or (eq .ActivePage "barang-masuk") (eq .ActivePage "barang-keluar")}}
+                            menu-active
+                            {{end}}"
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown">
+                            Transaksi
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a  class="dropdown-item {{if eq .ActivePage "barang-masuk"}}menu-active{{end}}"
+                                    href="/barang-masuk">
+                                    Barang Masuk
+                                </a>
+                            </li>
+
+                            <li>
+                                <a  class="dropdown-item {{if eq .ActivePage "barang-keluar"}}menu-active{{end}}"
+                                    href="/barang-keluar">
+                                    Barang Keluar
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a  class="nav-link dropdown-toggle"
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown">
+                             Laporan
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a  class="dropdown-item"
+                                    href="/export/barang">
+                                     Unduh Excel
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+                <span class="text-muted">
+                    Versi 1.0
+                </span>
+
+            </div>
+
+        </div>
+    </nav>
+
+    {{end}}

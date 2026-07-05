@@ -32,10 +32,46 @@
             .modal-body{
                 padding-top:0;
             }
+
+            .navbar{
+                min-height: 70px;
+            }
+
+            .navbar-brand{
+                font-size: 1.35rem;
+            }
+
+            .nav-link{
+                font-weight: 500;
+            }
+
+            .nav-link:hover{
+                color: #198754 !important;
+            }
+
+            .dropdown-item:hover{
+                background: #eef6ef;
+            }
+
+            .menu-active{
+                color: #198754 !important;
+                background: #eef6ef;
+                border-radius: 8px;
+                font-weight: 600;
+                padding: 8px 14px !important;
+                transition: .2s;
+            }
+
+            .dropdown-item.menu-active{
+                background:#eef6ef;
+                color:#198754 !important;
+                font-weight: 600;
+            }
         </style>
     </head>
 
     <body>
+        {{template "navbar" .}}
     
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -90,7 +126,7 @@
                     </thead>
 
                     <tbody>
-                        {{range .}}
+                        {{range .Data}}
                         <tr>
                             <td>
                                 {{.KodeBarang}}
