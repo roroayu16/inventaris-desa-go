@@ -8,6 +8,14 @@ import (
 func main() {
 	initDB()
 
+	http.Handle(
+		"/static/", http.StripPrefix(
+			"/static/", http.FileServer(
+				http.Dir("static"),
+			),
+		),
+	)
+
 	http.HandleFunc("/", homeHandler)
 
 	http.HandleFunc("/barang", barangHandler)
