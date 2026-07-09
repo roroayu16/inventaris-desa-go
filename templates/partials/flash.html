@@ -1,0 +1,40 @@
+{{define "flash"}}
+
+{{if .Flash}}
+
+<div class="container mt-3">
+
+    <div id="flashMessage"
+         class="alert alert-{{.Flash.Type}} alert-dismissible fade show"
+         role="alert">
+
+        {{.Flash.Message}}
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+setTimeout(function(){
+
+    const flash = document.getElementById("flashMessage");
+
+    if(flash){
+
+        bootstrap.Alert
+            .getOrCreateInstance(flash)
+            .close();
+    }
+
+},3000);
+</script>
+
+{{end}}
+
+{{end}}

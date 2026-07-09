@@ -44,7 +44,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		TotalKeluar: totalKeluar,
 	}
 
-	renderTemplate(w, "home.html", "dashboard", data)
+	renderTemplate(w, r, "home.html", "dashboard", data)
 }
 
 func barangHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +55,7 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderTemplate(w, "barang.html", "barang", barangList)
+	renderTemplate(w, r, "barang.html", "barang", barangList)
 }
 
 func kategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +89,7 @@ func kategoriHandler(w http.ResponseWriter, r *http.Request) {
 		kategori = append(kategori, k)
 	}
 
-	renderTemplate(w, "kategori.html", "kategori", kategori)
+	renderTemplate(w, r, "kategori.html", "kategori", kategori)
 }
 
 func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -109,17 +109,14 @@ func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(
-			w,
-			r,
-			"/kategori",
-			http.StatusSeeOther,
-		)
+		SetFlash(w, "success", "Kategori berhasil ditambahkan")
+
+		http.Redirect(w, r, "/kategori", http.StatusSeeOther)
 
 		return
 	}
 
-	renderTemplate(w, "tambah_kategori.html", "", nil)
+	renderTemplate(w, r, "tambah_kategori.html", "", nil)
 }
 
 func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -146,12 +143,9 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(
-			w,
-			r,
-			"/kategori",
-			http.StatusSeeOther,
-		)
+		SetFlash(w, "success", "Kategori berhasil diperbarui")
+
+		http.Redirect(w, r, "/kategori", http.StatusSeeOther)
 
 		return
 	}
@@ -175,7 +169,7 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderTemplate(w, "edit_kategori.html", "", kategori)
+	renderTemplate(w, r, "edit_kategori.html", "", kategori)
 }
 
 func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
@@ -191,6 +185,8 @@ func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
+
+	SetFlash(w, "success", "Kategori berhasil dihapus")
 
 	http.Redirect(w, r, "/kategori", http.StatusSeeOther)
 }
@@ -220,6 +216,8 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 			)
 			return
 		}
+
+		SetFlash(w, "success", "Barang berhasil ditambahkan")
 
 		http.Redirect(w, r, "/barang", http.StatusSeeOther)
 		return
@@ -261,7 +259,7 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		Kategori: kategori,
 	}
 
-	renderTemplate(w, "tambah_barang.html", "", data)
+	renderTemplate(w, r, "tambah_barang.html", "", data)
 }
 
 func barangMasukHandler(
@@ -327,9 +325,8 @@ func barangMasukHandler(
 			return
 		}
 
-		http.Redirect(
-			w, r, "/barang-masuk", http.StatusSeeOther,
-		)
+		SetFlash(w, "success", "Data barang masuk berhasil dicatat")
+		http.Redirect(w, r, "/barang-masuk", http.StatusSeeOther)
 		return
 	}
 
@@ -356,7 +353,7 @@ func barangMasukHandler(
 		RiwayatList: riwayatList,
 	}
 
-	renderTemplate(w, "barang_masuk.html", "barang-masuk", data)
+	renderTemplate(w, r, "barang_masuk.html", "barang-masuk", data)
 }
 
 func barangKeluarHandler(
@@ -406,11 +403,9 @@ func barangKeluarHandler(
 		}
 
 		if jumlah > barang.Jumlah {
-			http.Error(
-				w,
-				"Jumlah keluar melebihi stok tersedia",
-				http.StatusBadRequest,
-			)
+
+			SetFlash(w, "warning", "Jumlah barang keluar tidak boleh melebihi stok yang tersedia")
+			http.Redirect(w, r, "/barang-keluar", http.StatusSeeOther)
 			return
 		}
 
@@ -446,9 +441,8 @@ func barangKeluarHandler(
 			return
 		}
 
-		http.Redirect(
-			w, r, "/barang-keluar", http.StatusSeeOther,
-		)
+		SetFlash(w, "success", "Data barang keluar berhasil dicatat")
+		http.Redirect(w, r, "/barang-keluar", http.StatusSeeOther)
 		return
 	}
 
@@ -475,7 +469,7 @@ func barangKeluarHandler(
 		RiwayatList: riwayatList,
 	}
 
-	renderTemplate(w, "barang_keluar.html", "barang-keluar", data)
+	renderTemplate(w, r, "barang_keluar.html", "barang-keluar", data)
 }
 
 func editBarangHandler(w http.ResponseWriter, r *http.Request) {
@@ -522,6 +516,8 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 			)
 			return
 		}
+
+		SetFlash(w, "success", "Barang berhasil diperbarui")
 
 		http.Redirect(w, r, "/barang", http.StatusSeeOther)
 		return
@@ -593,7 +589,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		Kategori: kategoriList,
 	}
 
-	renderTemplate(w, "edit_barang.html", "", data)
+	renderTemplate(w, r, "edit_barang.html", "", data)
 
 }
 
@@ -615,6 +611,8 @@ func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}
+
+	SetFlash(w, "success", "Barang berhasil dihapus")
 
 	http.Redirect(w, r, "/barang", http.StatusSeeOther)
 
@@ -763,5 +761,5 @@ func detailBarangHandler(
 		RiwayatKeluar: riwayatKeluar,
 	}
 
-	renderTemplate(w, "detail_barang.html", "barang", data)
+	renderTemplate(w, r, "detail_barang.html", "barang", data)
 }
