@@ -173,6 +173,78 @@ func generateKodeBarang(kategoriID string) (string, error) {
 	return kodeBaru, nil
 }
 
+func sinkronkanKodeBarang(kategoriID string) error {
+	var kodeKategori string
+
+	err := db.QueryRow(`
+		SELECT kode
+		FROM kategori
+		WHERE id = ?
+	`, kategoriID).Scan(&kodeKategori)
+
+	if err != nil {
+		return err
+	}
+
+	rows, err := db.Query(`
+		SELECT id
+		FROM barang
+		WHERE kategori_id = ?
+		ORDER BY kode_barang
+	`, kategoriID)
+
+	if err != nil {
+		return err
+	}
+
+	var barangIDs []int
+
+	for rows.Next() {
+		var barangID int
+
+		err := rows.Scan(&barangID)
+
+		if err != nil {
+			return err
+		}
+
+		barangIDs = append(
+			barangIDs,
+			barangID,
+		)
+	}
+
+	rows.Close()
+
+	nomor := 1
+
+	for _, barangID := range barangIDs {
+
+		kodeBaru := fmt.Sprintf(
+			"%s-%03d",
+			kodeKategori,
+			nomor,
+		)
+
+		_, err = db.Exec(`
+			UPDATE barang
+			SET kode_barang = ?
+			WHERE id = ?
+		`,
+			kodeBaru,
+			barangID,
+		)
+
+		if err != nil {
+			return err
+		}
+
+		nomor++
+	}
+
+	return nil
+}
+
 func getAllBarang() ([]Barang, error) {
 	rows, err := db.Query(`
 		SELECT 

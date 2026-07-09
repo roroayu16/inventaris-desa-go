@@ -143,6 +143,13 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		err = sinkronkanKodeBarang(id)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
 		SetFlash(w, "success", "Kategori berhasil diperbarui")
 
 		http.Redirect(w, r, "/kategori", http.StatusSeeOther)
