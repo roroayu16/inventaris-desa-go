@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -10,6 +11,8 @@ import (
 )
 
 var db *sql.DB
+
+var ErrKategoriMasihDigunakan = errors.New("kategori masih digunakan")
 
 func initDB() {
 	log.Println("Database INIT Start")
@@ -432,6 +435,112 @@ func deleteBarang(id int) error {
 
 	return err
 }
+
+// ==============================================
+// KATEGORI
+// ==============================================
+func getAllKategori() ([]Kategori, error) {
+	rows, err := db.Query(`
+		SELECT id, kode, nama
+		FROM kategori
+		ORDER BY nama
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var kategori []Kategori
+
+	for rows.Next() {
+		var k Kategori
+
+		err := rows.Scan(
+			&k.ID,
+			&k.Kode,
+			&k.Nama,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		kategori = append(kategori, k)
+	}
+
+	return kategori, nil
+}
+
+func getKategoriByID(id string) (Kategori, error) {
+	var kategori Kategori
+
+	err := db.QueryRow(`
+		SELECT id, kode, nama
+		FROM kategori
+		WHERE id = ?
+	`, id).Scan(
+		&kategori.ID,
+		&kategori.Kode,
+		&kategori.Nama,
+	)
+
+	return kategori, err
+}
+
+func getJumlahBarangByKategori(id string) (int, error) {
+	var jumlah int
+
+	err := db.QueryRow(`
+		SELECT COUNT(*)
+		FROM barang
+		WHERE kategori_id = ?
+	`, id).Scan(&jumlah)
+
+	return jumlah, err
+}
+
+func insertKategori(kode, nama string) error {
+	_, err := db.Exec(`
+		INSERT INTO kategori (kode, nama)
+		VALUES (?, ?)
+	`, kode, nama)
+
+	return err
+}
+
+func updateKategori(id, kode, nama string) error {
+	_, err := db.Exec(`
+		UPDATE kategori
+		SET kode = ?, nama = ?
+		WHERE id = ?
+	`, kode, nama, id)
+
+	if err != nil {
+		return err
+	}
+
+	return sinkronkanKodeBarang(id)
+}
+
+func deleteKategori(id string) error {
+	jumlah, err := getJumlahBarangByKategori(id)
+
+	if err != nil {
+		return err
+	}
+
+	if jumlah > 0 {
+		return ErrKategoriMasihDigunakan
+	}
+
+	_, err = db.Exec(`
+		DELETE FROM kategori
+		WHERE id = ?
+	`, id)
+
+	return err
+}
+
+// ==============================================
 
 func getTotalBarang() (int, error) {
 	var total int

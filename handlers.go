@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -58,35 +59,15 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "barang.html", "barang", barangList)
 }
 
+// ==============================================
+// KATEGORI
+// ==============================================
 func kategoriHandler(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query(`
-		SELECT id, kode, nama
-		FROM kategori
-		ORDER BY nama
-	`)
+	kategori, err := getAllKategori()
 
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	defer rows.Close()
-	var kategori []Kategori
-
-	for rows.Next() {
-		var k Kategori
-		err := rows.Scan(
-			&k.ID,
-			&k.Kode,
-			&k.Nama,
-		)
-
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		kategori = append(kategori, k)
 	}
 
 	renderTemplate(w, r, "kategori.html", "kategori", kategori)
@@ -99,13 +80,10 @@ func tambahKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		kode := r.FormValue("kode")
 		nama := r.FormValue("nama")
 
-		_, err := db.Exec(`
-			INSERT INTO kategori (kode, nama)
-			VALUES (?, ?)
-		`, kode, nama)
+		err := insertKategori(kode, nama)
 
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -128,25 +106,10 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		kode := r.FormValue("kode")
 		nama := r.FormValue("nama")
 
-		_, err := db.Exec(`
-			UPDATE kategori
-			SET kode = ?, nama = ?
-			WHERE id = ?
-		`,
-			kode,
-			nama,
-			id,
-		)
+		err := updateKategori(id, kode, nama)
 
 		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
-
-		err = sinkronkanKodeBarang(id)
-
-		if err != nil {
-			http.Error(w, err.Error(), 500)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -159,20 +122,10 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 
 	var kategori Kategori
 
-	err := db.QueryRow(`
-		SELECT id, kode, nama
-		FROM kategori
-		WHERE id = ?
-	`,
-		id,
-	).Scan(
-		&kategori.ID,
-		&kategori.Kode,
-		&kategori.Nama,
-	)
+	kategori, err := getKategoriByID(id)
 
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -183,13 +136,18 @@ func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
 
-	_, err := db.Exec(`
-		DELETE FROM kategori
-		WHERE id = ?
-	`, id)
+	err := deleteKategori(id)
 
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		if errors.Is(err, ErrKategoriMasihDigunakan) {
+			SetFlash(w, "warning",
+				"Kategori tidak dapat dihapus karena masih digunakan oleh satu atau lebih barang",
+			)
+			http.Redirect(w, r, "/kategori", http.StatusSeeOther)
+			return
+		}
+
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -197,6 +155,8 @@ func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/kategori", http.StatusSeeOther)
 }
+
+// ==============================================
 
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
