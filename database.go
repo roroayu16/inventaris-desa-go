@@ -14,6 +14,10 @@ var db *sql.DB
 
 var ErrKategoriMasihDigunakan = errors.New("kategori masih digunakan")
 
+// ==============================================
+// DATABASE INITIALIZATION
+// ==============================================
+
 func initDB() {
 	log.Println("Database INIT Start")
 
@@ -29,6 +33,10 @@ func initDB() {
 
 	log.Println("Database INIT Success")
 }
+
+// ==============================================
+// DATABASE SCHEMA
+// ==============================================
 
 func createTable() {
 	//barang
@@ -90,6 +98,10 @@ func createTable() {
 	}
 }
 
+// ==============================================
+// DATABASE MIGRATION
+// ==============================================
+
 func addColumn(table, column, dataType string) {
 	query := fmt.Sprintf(`
 		ALTER TABLE %s
@@ -120,6 +132,10 @@ func migrateDatabase() {
 	addColumn("barang_keluar", "keperluan", "TEXT")
 	addColumn("barang_keluar", "keterangan", "TEXT")
 }
+
+// ==============================================
+// BARANG
+// ==============================================
 
 func generateKodeBarang(kategoriID string) (string, error) {
 
@@ -436,6 +452,53 @@ func deleteBarang(id int) error {
 	return err
 }
 
+func getAllBarangForDropDown() ([]Barang, error) {
+	rows, err := db.Query(`
+		SELECT
+			b.id,
+			b.kode_barang,
+			k.nama,
+			b.nama,
+			b.tempat,
+			b.kondisi,
+			b.jumlah
+		FROM barang b
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
+		ORDER BY b.kode_barang
+	`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var barangList []Barang
+
+	for rows.Next() {
+		var b Barang
+
+		err := rows.Scan(
+			&b.ID,
+			&b.KodeBarang,
+			&b.Kategori,
+			&b.Nama,
+			&b.Tempat,
+			&b.Kondisi,
+			&b.Jumlah,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		barangList = append(barangList, b)
+	}
+
+	return barangList, nil
+}
+
 // ==============================================
 // KATEGORI
 // ==============================================
@@ -486,18 +549,6 @@ func getKategoriByID(id string) (Kategori, error) {
 	return kategori, err
 }
 
-func getJumlahBarangByKategori(id string) (int, error) {
-	var jumlah int
-
-	err := db.QueryRow(`
-		SELECT COUNT(*)
-		FROM barang
-		WHERE kategori_id = ?
-	`, id).Scan(&jumlah)
-
-	return jumlah, err
-}
-
 func insertKategori(kode, nama string) error {
 	_, err := db.Exec(`
 		INSERT INTO kategori (kode, nama)
@@ -540,6 +591,20 @@ func deleteKategori(id string) error {
 	return err
 }
 
+func getJumlahBarangByKategori(id string) (int, error) {
+	var jumlah int
+
+	err := db.QueryRow(`
+		SELECT COUNT(*)
+		FROM barang
+		WHERE kategori_id = ?
+	`, id).Scan(&jumlah)
+
+	return jumlah, err
+}
+
+// ==============================================
+// DASHBOARD
 // ==============================================
 
 func getTotalBarang() (int, error) {
@@ -610,52 +675,9 @@ func getTotalBarangKeluar() (int, error) {
 	return total, nil
 }
 
-func getAllBarangForDropDown() ([]Barang, error) {
-	rows, err := db.Query(`
-		SELECT
-			b.id,
-			b.kode_barang,
-			k.nama,
-			b.nama,
-			b.tempat,
-			b.kondisi,
-			b.jumlah
-		FROM barang b
-		LEFT JOIN kategori k
-			ON b.kategori_id = k.id
-		ORDER BY b.kode_barang
-	`)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	var barangList []Barang
-
-	for rows.Next() {
-		var b Barang
-
-		err := rows.Scan(
-			&b.ID,
-			&b.KodeBarang,
-			&b.Kategori,
-			&b.Nama,
-			&b.Tempat,
-			&b.Kondisi,
-			&b.Jumlah,
-		)
-
-		if err != nil {
-			return nil, err
-		}
-
-		barangList = append(barangList, b)
-	}
-
-	return barangList, nil
-}
+// ==============================================
+// BARANG MASUK
+// ==============================================
 
 func insertBarangMasuk(
 	barangID int,
@@ -691,58 +713,6 @@ func updateStokMasuk(
 	query := `
 	UPDATE barang
 	SET jumlah = jumlah + ?
-	WHERE id = ?
-	`
-
-	_, err := db.Exec(
-		query,
-		jumlah,
-		barangID,
-	)
-
-	return err
-}
-
-func insertBarangKeluar(
-	barangID int,
-	jumlah int,
-	tanggal string,
-	diambilOleh string,
-	keperluan string,
-	keterangan string,
-) error {
-	query := `
-	INSERT INTO barang_keluar (
-		barang_id,
-		jumlah,
-		tanggal,
-		diambil_oleh,
-		keperluan,
-		keterangan
-	)
-	VALUES (?, ?, ?, ?, ?, ?)
-	`
-
-	_, err := db.Exec(
-		query,
-		barangID,
-		jumlah,
-		tanggal,
-		diambilOleh,
-		keperluan,
-		keterangan,
-	)
-
-	return err
-}
-
-func updateStokKeluar(
-	barangID int,
-	jumlah int,
-) error {
-	query := `
-	UPDATE barang
-	SET jumlah = jumlah - ?
 	WHERE id = ?
 	`
 
@@ -809,6 +779,116 @@ func getAllBarangMasuk() ([]BarangMasuk, error) {
 	return data, nil
 }
 
+func getBarangMasukByBarangID(barangID int) ([]BarangMasuk, error) {
+	rows, err := db.Query(`
+		SELECT
+			bm.id,
+			bm.barang_id,
+			b.kode_barang,
+			k.nama,
+			b.nama,
+			b.tempat,
+			b.kondisi,
+			bm.jumlah,
+			bm.tanggal,
+			bm.keterangan
+		FROM barang_masuk bm
+		JOIN barang b
+			ON bm.barang_id = b.id
+		LEFT JOIN kategori k
+			ON b.kategori_id = k.id
+		WHERE bm.barang_id = ?
+		ORDER BY bm.tanggal DESC
+	`, barangID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var data []BarangMasuk
+
+	for rows.Next() {
+		var b BarangMasuk
+
+		err := rows.Scan(
+			&b.ID,
+			&b.BarangID,
+			&b.KodeBarang,
+			&b.Kategori,
+			&b.NamaBarang,
+			&b.Tempat,
+			&b.Kondisi,
+			&b.Jumlah,
+			&b.Tanggal,
+			&b.Keterangan,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, b)
+	}
+	return data, nil
+}
+
+// ==============================================
+// BARANG KELUAR
+// ==============================================
+
+func insertBarangKeluar(
+	barangID int,
+	jumlah int,
+	tanggal string,
+	diambilOleh string,
+	keperluan string,
+	keterangan string,
+) error {
+	query := `
+	INSERT INTO barang_keluar (
+		barang_id,
+		jumlah,
+		tanggal,
+		diambil_oleh,
+		keperluan,
+		keterangan
+	)
+	VALUES (?, ?, ?, ?, ?, ?)
+	`
+
+	_, err := db.Exec(
+		query,
+		barangID,
+		jumlah,
+		tanggal,
+		diambilOleh,
+		keperluan,
+		keterangan,
+	)
+
+	return err
+}
+
+func updateStokKeluar(
+	barangID int,
+	jumlah int,
+) error {
+	query := `
+	UPDATE barang
+	SET jumlah = jumlah - ?
+	WHERE id = ?
+	`
+
+	_, err := db.Exec(
+		query,
+		jumlah,
+		barangID,
+	)
+
+	return err
+}
+
 func getAllBarangKeluar() ([]BarangKeluar, error) {
 	rows, err := db.Query(`
 		SELECT
@@ -864,60 +944,6 @@ func getAllBarangKeluar() ([]BarangKeluar, error) {
 		data = append(data, b)
 	}
 
-	return data, nil
-}
-
-func getBarangMasukByBarangID(barangID int) ([]BarangMasuk, error) {
-	rows, err := db.Query(`
-		SELECT
-			bm.id,
-			bm.barang_id,
-			b.kode_barang,
-			k.nama,
-			b.nama,
-			b.tempat,
-			b.kondisi,
-			bm.jumlah,
-			bm.tanggal,
-			bm.keterangan
-		FROM barang_masuk bm
-		JOIN barang b
-			ON bm.barang_id = b.id
-		LEFT JOIN kategori k
-			ON b.kategori_id = k.id
-		WHERE bm.barang_id = ?
-		ORDER BY bm.tanggal DESC
-	`, barangID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-	var data []BarangMasuk
-
-	for rows.Next() {
-		var b BarangMasuk
-
-		err := rows.Scan(
-			&b.ID,
-			&b.BarangID,
-			&b.KodeBarang,
-			&b.Kategori,
-			&b.NamaBarang,
-			&b.Tempat,
-			&b.Kondisi,
-			&b.Jumlah,
-			&b.Tanggal,
-			&b.Keterangan,
-		)
-
-		if err != nil {
-			return nil, err
-		}
-
-		data = append(data, b)
-	}
 	return data, nil
 }
 

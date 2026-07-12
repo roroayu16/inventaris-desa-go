@@ -9,6 +9,10 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+// ==============================================
+// DASHBOARD
+// ==============================================
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	totalBarang, err := getTotalBarang()
 
@@ -48,6 +52,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "home.html", "dashboard", data)
 }
 
+// ==============================================
+// BARANG
+// ==============================================
+
 func barangHandler(w http.ResponseWriter, r *http.Request) {
 	barangList, err := getAllBarang()
 
@@ -59,9 +67,224 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "barang.html", "barang", barangList)
 }
 
+func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+
+		kategoriID := r.FormValue("kategori_id")
+		nama := r.FormValue("nama")
+		jumlah := r.FormValue("jumlah")
+		tempat := r.FormValue("tempat")
+		kondisi := r.FormValue("kondisi")
+
+		err := insertBarang(
+			kategoriID,
+			nama,
+			jumlah,
+			tempat,
+			kondisi,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		SetFlash(w, "success", "Barang berhasil ditambahkan")
+
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
+	kategori, err := getAllKategori()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := TambahBarangData{
+		Kategori: kategori,
+	}
+
+	renderTemplate(w, r, "tambah_barang.html", "", data)
+}
+
+func editBarangHandler(w http.ResponseWriter, r *http.Request) {
+
+	// POST
+	if r.Method == "POST" {
+		idstr := r.FormValue("id")
+
+		kategoriID := r.FormValue("kategori_id")
+		nama := r.FormValue("nama")
+		tempat := r.FormValue("tempat")
+		kondisi := r.FormValue("kondisi")
+
+		id, err := strconv.Atoi(idstr)
+
+		if err != nil {
+			http.Redirect(w, r, "/barang", http.StatusSeeOther)
+			return
+		}
+
+		barangLama, err := getBarangByID(id)
+
+		if err != nil {
+			http.Redirect(
+				w, r, "/barang", http.StatusSeeOther,
+			)
+			return
+		}
+
+		err = updateBarang(
+			id,
+			kategoriID,
+			nama,
+			strconv.Itoa(barangLama.Jumlah),
+			tempat,
+			kondisi,
+		)
+
+		if err != nil {
+			http.Error(
+				w,
+				err.Error(),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		SetFlash(w, "success", "Barang berhasil diperbarui")
+
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
+	// GET
+	idStr := r.URL.Query().Get("id")
+
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
+	barang, err := getBarangByID(id)
+
+	if err != nil {
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
+	kategoriList, err := getAllKategori()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := EditBarangData{
+		Barang:   barang,
+		Kategori: kategoriList,
+	}
+
+	renderTemplate(w, r, "edit_barang.html", "", data)
+
+}
+
+func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
+	idstr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
+	err = deleteBarang(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	SetFlash(w, "success", "Barang berhasil dihapus")
+
+	http.Redirect(w, r, "/barang", http.StatusSeeOther)
+
+}
+
+func detailBarangHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	idStr := r.URL.Query().Get("id")
+
+	id, err := strconv.Atoi(idStr)
+
+	if err != nil {
+		http.Error(
+			w,
+			"ID tidak valid",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	barang, err := getBarangByID(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	riwayatMasuk, err := getBarangMasukByBarangID(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	riwayatKeluar, err := getBarangKeluarByBarangID(id)
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	data := DetailBarang{
+		Barang:        barang,
+		RiwayatMasuk:  riwayatMasuk,
+		RiwayatKeluar: riwayatKeluar,
+	}
+
+	renderTemplate(w, r, "detail_barang.html", "barang", data)
+}
+
 // ==============================================
 // KATEGORI
 // ==============================================
+
 func kategoriHandler(w http.ResponseWriter, r *http.Request) {
 	kategori, err := getAllKategori()
 
@@ -157,77 +380,8 @@ func hapusKategoriHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // ==============================================
-
-func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-
-		kategoriID := r.FormValue("kategori_id")
-		nama := r.FormValue("nama")
-		jumlah := r.FormValue("jumlah")
-		tempat := r.FormValue("tempat")
-		kondisi := r.FormValue("kondisi")
-
-		err := insertBarang(
-			kategoriID,
-			nama,
-			jumlah,
-			tempat,
-			kondisi,
-		)
-
-		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		SetFlash(w, "success", "Barang berhasil ditambahkan")
-
-		http.Redirect(w, r, "/barang", http.StatusSeeOther)
-		return
-	}
-
-	rows, err := db.Query(`
-		SELECT id, kode, nama
-		FROM kategori
-		ORDER BY nama
-	`)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	defer rows.Close()
-
-	var kategori []Kategori
-
-	for rows.Next() {
-		var k Kategori
-
-		err := rows.Scan(
-			&k.ID,
-			&k.Kode,
-			&k.Nama,
-		)
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		kategori = append(kategori, k)
-	}
-
-	data := TambahBarangData{
-		Kategori: kategori,
-	}
-
-	renderTemplate(w, r, "tambah_barang.html", "", data)
-}
+// BARANG MASUK
+// ==============================================
 
 func barangMasukHandler(
 	w http.ResponseWriter,
@@ -322,6 +476,10 @@ func barangMasukHandler(
 
 	renderTemplate(w, r, "barang_masuk.html", "barang-masuk", data)
 }
+
+// ==============================================
+// BARANG KELUAR
+// ==============================================
 
 func barangKeluarHandler(
 	w http.ResponseWriter,
@@ -439,151 +597,9 @@ func barangKeluarHandler(
 	renderTemplate(w, r, "barang_keluar.html", "barang-keluar", data)
 }
 
-func editBarangHandler(w http.ResponseWriter, r *http.Request) {
-
-	// POST
-	if r.Method == "POST" {
-		idstr := r.FormValue("id")
-
-		KategoriID := r.FormValue("kategori_id")
-		nama := r.FormValue("nama")
-		tempat := r.FormValue("tempat")
-		kondisi := r.FormValue("kondisi")
-
-		id, err := strconv.Atoi(idstr)
-
-		if err != nil {
-			http.Redirect(w, r, "/barang", http.StatusSeeOther)
-			return
-		}
-
-		barangLama, err := getBarangByID(id)
-
-		if err != nil {
-			http.Redirect(
-				w, r, "/barang", http.StatusSeeOther,
-			)
-			return
-		}
-
-		err = updateBarang(
-			id,
-			KategoriID,
-			nama,
-			strconv.Itoa(barangLama.Jumlah),
-			tempat,
-			kondisi,
-		)
-
-		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		SetFlash(w, "success", "Barang berhasil diperbarui")
-
-		http.Redirect(w, r, "/barang", http.StatusSeeOther)
-		return
-	}
-
-	// GET
-	idStr := r.URL.Query().Get("id")
-
-	id, err := strconv.Atoi(idStr)
-
-	if err != nil {
-		http.Redirect(w, r, "/barang", http.StatusSeeOther)
-		return
-	}
-
-	barang, err := getBarangByID(id)
-
-	if err != nil {
-		http.Redirect(w, r, "/barang", http.StatusSeeOther)
-		return
-	}
-
-	rows, err := db.Query(`
-		SELECT id, kode, nama
-		FROM kategori
-		ORDER BY nama
-	`)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	defer rows.Close()
-
-	var kategoriList []Kategori
-
-	for rows.Next() {
-
-		var k Kategori
-
-		err := rows.Scan(
-			&k.ID,
-			&k.Kode,
-			&k.Nama,
-		)
-
-		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		kategoriList = append(
-			kategoriList,
-			k,
-		)
-	}
-
-	data := EditBarangData{
-		Barang:   barang,
-		Kategori: kategoriList,
-	}
-
-	renderTemplate(w, r, "edit_barang.html", "", data)
-
-}
-
-func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
-	idstr := r.URL.Query().Get("id")
-	id, err := strconv.Atoi(idstr)
-	if err != nil {
-		http.Redirect(w, r, "/barang", http.StatusSeeOther)
-		return
-	}
-
-	err = deleteBarang(id)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	SetFlash(w, "success", "Barang berhasil dihapus")
-
-	http.Redirect(w, r, "/barang", http.StatusSeeOther)
-
-}
+// ==============================================
+// LAPORAN
+// ==============================================
 
 func exportBarangExcelHandler(
 	w http.ResponseWriter,
@@ -670,63 +686,4 @@ func exportBarangExcelHandler(
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-}
-
-func detailBarangHandler(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-	idStr := r.URL.Query().Get("id")
-
-	id, err := strconv.Atoi(idStr)
-
-	if err != nil {
-		http.Error(
-			w,
-			"ID tidak valid",
-			http.StatusBadRequest,
-		)
-		return
-	}
-
-	barang, err := getBarangByID(id)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	riwayatMasuk, err := getBarangMasukByBarangID(id)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	riwayatKeluar, err := getBarangKeluarByBarangID(id)
-
-	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
-	data := DetailBarang{
-		Barang:        barang,
-		RiwayatMasuk:  riwayatMasuk,
-		RiwayatKeluar: riwayatKeluar,
-	}
-
-	renderTemplate(w, r, "detail_barang.html", "barang", data)
 }
