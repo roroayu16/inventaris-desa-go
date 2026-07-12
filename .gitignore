@@ -1,5 +1,20 @@
+# Air
 air
 tmp/
-*.exe
+
+# SQLite Database
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
+
+# Build Output
+*.exe
+*.exe~
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
