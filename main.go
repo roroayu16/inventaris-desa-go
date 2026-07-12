@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -16,25 +16,34 @@ func main() {
 		),
 	)
 
+	// DASHBOARD
 	http.HandleFunc("/", homeHandler)
 
+	// BARANG
 	http.HandleFunc("/barang", barangHandler)
+	http.HandleFunc("/barang/tambah", tambahBarangHandler)
+	http.HandleFunc("/barang/edit", editBarangHandler)
+	http.HandleFunc("/barang/hapus", hapusBarangHandler)
+	http.HandleFunc("/barang/detail", detailBarangHandler)
 
+	// KATEGORI
 	http.HandleFunc("/kategori", kategoriHandler)
 	http.HandleFunc("/kategori/tambah", tambahKategoriHandler)
 	http.HandleFunc("/kategori/edit", editKategoriHandler)
 	http.HandleFunc("/kategori/hapus", hapusKategoriHandler)
 
-	http.HandleFunc("/barang/detail", detailBarangHandler)
-	http.HandleFunc("/barang/tambah", tambahBarangHandler)
-	http.HandleFunc("/export/barang", exportBarangExcelHandler)
-
+	// BARANG MASUK
 	http.HandleFunc("/barang-masuk", barangMasukHandler)
+
+	// BARANG KELUAR
 	http.HandleFunc("/barang-keluar", barangKeluarHandler)
 
-	http.HandleFunc("/barang/edit", editBarangHandler)
-	http.HandleFunc("/barang/hapus", hapusBarangHandler)
+	// LAPORAN
+	http.HandleFunc("/export/barang", exportBarangExcelHandler)
 
-	fmt.Println("server berjalan di http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	log.Println("server berjalan di http://localhost:8080")
+
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
 }

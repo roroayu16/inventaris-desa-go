@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -29,7 +28,6 @@ func initDB() {
 	}
 
 	createTable()
-	migrateDatabase()
 
 	log.Println("Database INIT Success")
 }
@@ -39,10 +37,12 @@ func initDB() {
 // ==============================================
 
 func createTable() {
-	//barang
+	// BARANG
 	queryBarang := `
 	CREATE TABLE IF NOT EXISTS barang (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		kode_barang TEXT NOT NULL,
+		kategori_id INTEGER NOT NULL,
 		nama TEXT NOT NULL,
 		stok_awal INTEGER NOT NULL,
 		jumlah INTEGER NOT NULL,
@@ -56,7 +56,7 @@ func createTable() {
 		log.Fatal(err)
 	}
 
-	//Kategori
+	// KATEGORI
 	queryKategori := `
 	CREATE TABLE IF NOT EXISTS kategori (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,13 +69,14 @@ func createTable() {
 		log.Fatal(err)
 	}
 
-	//barang-masuk
+	// BARANG MASUK
 	queryMasuk := `
 	CREATE TABLE IF NOT EXISTS barang_masuk (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		barang_id INTEGER NOT NULL,
 		jumlah INTEGER NOT NULL,
-		tanggal TEXT NOT NULL
+		tanggal TEXT NOT NULL,
+		keterangan TEXT
 	);
 	`
 	_, err = db.Exec(queryMasuk)
@@ -83,54 +84,22 @@ func createTable() {
 		log.Fatal(err)
 	}
 
-	//barang-keluar
+	// BARANG KELUAR
 	queryKeluar := `
 	CREATE TABLE IF NOT EXISTS barang_keluar (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		barang_id INTEGER NOT NULL,
 		jumlah INTEGER NOT NULL,
-		tanggal TEXT NOT NULL
+		tanggal TEXT NOT NULL,
+		diambil_oleh TEXT,
+		keperluan TEXT,
+		keterangan TEXT
 	);
 	`
 	_, err = db.Exec(queryKeluar)
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// ==============================================
-// DATABASE MIGRATION
-// ==============================================
-
-func addColumn(table, column, dataType string) {
-	query := fmt.Sprintf(`
-		ALTER TABLE %s
-		ADD COLUMN %s %s
-	`, table, column, dataType)
-
-	_, err := db.Exec(query)
-
-	if err == nil {
-		log.Printf("Migration: %s.%s berhasil", table, column)
-		return
-	}
-
-	if strings.Contains(err.Error(), "duplicate column name") {
-		log.Printf("Migration: %s.%s sudah ada", table, column)
-		return
-	}
-
-	log.Println(err)
-}
-
-func migrateDatabase() {
-
-	addColumn("barang", "kategori_id", "INTEGER")
-	addColumn("barang", "kode_barang", "TEXT")
-	addColumn("barang_masuk", "keterangan", "TEXT")
-	addColumn("barang_keluar", "diambil_oleh", "TEXT")
-	addColumn("barang_keluar", "keperluan", "TEXT")
-	addColumn("barang_keluar", "keterangan", "TEXT")
 }
 
 // ==============================================
@@ -233,6 +202,8 @@ func sinkronkanKodeBarang(kategoriID string) error {
 		)
 	}
 
+	// Tutup rows sebelum melakukan UPDATE
+	// untuk menghindari SQLITE_BUSY
 	rows.Close()
 
 	nomor := 1

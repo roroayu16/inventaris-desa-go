@@ -85,11 +85,7 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -117,14 +113,14 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST
 	if r.Method == "POST" {
-		idstr := r.FormValue("id")
+		idStr := r.FormValue("id")
 
 		kategoriID := r.FormValue("kategori_id")
 		nama := r.FormValue("nama")
 		tempat := r.FormValue("tempat")
 		kondisi := r.FormValue("kondisi")
 
-		id, err := strconv.Atoi(idstr)
+		id, err := strconv.Atoi(idStr)
 
 		if err != nil {
 			http.Redirect(w, r, "/barang", http.StatusSeeOther)
@@ -134,9 +130,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		barangLama, err := getBarangByID(id)
 
 		if err != nil {
-			http.Redirect(
-				w, r, "/barang", http.StatusSeeOther,
-			)
+			http.Redirect(w, r, "/barang", http.StatusSeeOther)
 			return
 		}
 
@@ -150,11 +144,7 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -198,8 +188,8 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
-	idstr := r.URL.Query().Get("id")
-	id, err := strconv.Atoi(idstr)
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Redirect(w, r, "/barang", http.StatusSeeOther)
 		return
@@ -208,11 +198,7 @@ func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
 	err = deleteBarang(id)
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -242,33 +228,21 @@ func detailBarangHandler(
 	barang, err := getBarangByID(id)
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	riwayatMasuk, err := getBarangMasukByBarangID(id)
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	riwayatKeluar, err := getBarangKeluarByBarangID(id)
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -343,8 +317,6 @@ func editKategoriHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var kategori Kategori
-
 	kategori, err := getKategoriByID(id)
 
 	if err != nil {
@@ -387,7 +359,7 @@ func barangMasukHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	//POST
+	// POST
 	if r.Method == "POST" {
 		barangIDStr := r.FormValue("barang_id")
 		jumlahStr := r.FormValue("jumlah")
@@ -424,11 +396,7 @@ func barangMasukHandler(
 		)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -438,28 +406,21 @@ func barangMasukHandler(
 		)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		SetFlash(w, "success", "Data barang masuk berhasil dicatat")
+
 		http.Redirect(w, r, "/barang-masuk", http.StatusSeeOther)
 		return
 	}
 
-	//GET
+	// GET
 	barangList, err := getAllBarangForDropDown()
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -485,7 +446,7 @@ func barangKeluarHandler(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	//POST
+	// POST
 	if r.Method == "POST" {
 		barangIDStr := r.FormValue("barang_id")
 		jumlahStr := r.FormValue("jumlah")
@@ -519,11 +480,7 @@ func barangKeluarHandler(
 		barang, err := getBarangByID(barangID)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -544,11 +501,7 @@ func barangKeluarHandler(
 		)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -558,28 +511,21 @@ func barangKeluarHandler(
 		)
 
 		if err != nil {
-			http.Error(
-				w,
-				err.Error(),
-				http.StatusInternalServerError,
-			)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		SetFlash(w, "success", "Data barang keluar berhasil dicatat")
+
 		http.Redirect(w, r, "/barang-keluar", http.StatusSeeOther)
 		return
 	}
 
-	//GET
+	// GET
 	barangList, err := getAllBarangForDropDown()
 
 	if err != nil {
-		http.Error(
-			w,
-			err.Error(),
-			http.StatusInternalServerError,
-		)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
