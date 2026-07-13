@@ -1,39 +1,45 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Edit Kategori</title>
 
-    <title>Edit Kategori</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        
+        <link 
+            rel="stylesheet" 
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <link
-        href="/static/css/style.css"
-        rel="stylesheet">
-
+        <link
+            href="/static/css/style.css"
+            rel="stylesheet">
     </head>
 
     <body>
         <div class="container mt-4">
-            <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                
+                <div>
+                    <h1 class="fw-bold mb-1">
+                        Edit Kategori
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Perbarui data kategori barang
+                    </p>
+                </div>
+
                 <a  href="/kategori"
                     class="btn btn-secondary">
-                    ← Kembali
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Kembali
                 </a>
+
             </div>
 
             <div class="card">
                 <div class="card-body">
-                    <div class="mb-4">
-                        <h1 class="fw-bold mb-1">
-                            Edit Kategori
-                        </h1>
-
-                        <p class="text-muted mb-0">
-                            Perbarui data kategori inventaris
-                        </p>
-                    </div>
 
                     <form method="POST">
                         <div class="mb-3">
@@ -60,15 +66,17 @@
                                     required>
                         </div>
 
-                        <div class="mt-4" d-flex gap-2>
+                        <div class="mt-4">
                             <a  href="/kategori"
-                                class="btn btn-secondary">
+                                class="btn btn-secondary px-4">
+                                <i class="bi bi-x-circle me-1"></i>
                                 Batal
                             </a>
 
                             <button
                                 type="submit"
-                                class="btn btn-warning">
+                                class="btn btn-warning px-4">
+                                <i class="bi bi-floppy me-1"></i>
                                 Simpan Perubahan
                             </button>
                         </div>

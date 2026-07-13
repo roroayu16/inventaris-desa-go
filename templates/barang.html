@@ -8,10 +8,13 @@
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
             rel="stylesheet">
 
+        <link 
+            rel="stylesheet" 
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
         <link
             href="/static/css/style.css"
             rel="stylesheet">
-
     </head>
 
     <body>
@@ -27,7 +30,7 @@
                 </h1>
 
                 <p class="text-muted mb-0">
-                    Tabel Barang Inventaris
+                    Kelola data inventaris Desa Carangrejo
                 </p>
             </div>
 
@@ -35,16 +38,19 @@
                 
                 <a  href="/"
                     class="btn btn-secondary">
-                    ← Kembali
+                    <i class="bi bi-arrow-left"></i>
+                    Kembali
                 </a>
 
                 <a  href="/barang/tambah"
                     class="btn btn-success">
-                    + Tambah Barang
+                    <i class="bi bi-plus-circle"></i>
+                    Tambah Barang
                 </a>
 
                 <a  href="/export/barang"
                     class="btn btn-success">
+                    <i class="bi bi-download"></i>
                     Export Excel
                 </a>
 
@@ -56,7 +62,7 @@
             <div class="card-body">
                 <table class="table table-striped table-hover align-middle">
             
-                    <thead class="table-primary">
+                    <thead class="table-success">
                         <tr>
                             <th class="text-center">Kode Barang</th>
                             <th class="text-center">Nama Barang</th>
@@ -73,7 +79,7 @@
                     <tbody>
                         {{range .Data}}
                         <tr>
-                            <td>
+                            <td class="text-center fw-semibold">
                                 {{.KodeBarang}}
                             </td>
 
@@ -120,18 +126,20 @@
                             
                             <td class="text-center">
                                 <a  href="/barang/detail?id={{.ID}}"
-                                    class="btn btn-info btn-sm">
+                                    class="btn btn-info btn-sm btn-action">
+                                    <i class="bi bi-eye"></i>
                                     Detail
                                 </a>
                                 
                                 <a  href="/barang/edit?id={{.ID}}"
-                                    class="btn btn-warning btn-sm">
+                                    class="btn btn-warning btn-sm btn-action">
+                                    <i class="bi bi-pencil-square"></i>
                                     Edit
                                 </a>
 
                                 <button
                                     type="button"
-                                    class="btn btn-danger btn-sm btn-delete"
+                                    class="btn btn-danger btn-sm btn-delete btn-action"
                                     
                                     data-id="{{.ID}}"
                                     data-kode="{{.KodeBarang}}"
@@ -139,6 +147,8 @@
                                     
                                     data-bs-toggle="modal"
                                     data-bs-target="#hapusModal">
+
+                                    <i class="bi bi-trash"></i>
                                     Hapus
                                 </button>
                             </td>

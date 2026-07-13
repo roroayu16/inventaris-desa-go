@@ -7,41 +7,42 @@
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
             rel="stylesheet">
         
+        <link 
+            rel="stylesheet" 
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        
         <link
             href="/static/css/style.css"
             rel="stylesheet">
-        
     </head>
     
     <body>
         <div class="container mt-4">
-            
-            <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                
+                <div>
+                    <h1 class="fw-bold mb-1">
+                        Tambah Barang
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Input data inventaris barang baru
+                    </p>
+                </div>
+
                 <a  href="/barang"
                     class="btn btn-secondary">
-                    ← Kembali
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Kembali
                 </a>
+
             </div>
 
-            <div class="card shadow">
+            <div class="card">
                 <div class="card-body">
                     
-                    <div class="mb-4">
-
-                        <h1 class="fw-bold mb-1">
-                            Tambah Barang
-                        </h1>
-
-                        <p class="text-muted mb-0">
-                            Input data inventaris barang baru
-                        </p>
-
-                    </div>
-                    
                     <form method="POST">
-
                         <div class="row">
-
                             <div class="col-md-12">
                                 <label class="form-label">
                                     Kategori
@@ -60,15 +61,13 @@
                                     <option value="{{.ID}}">
                                         {{.Nama}}
                                     </option>
-                                    {{end}}
 
+                                    {{end}}
                                 </select>
                             </div>
-
                         </div>
 
                         <div class="row mt-3">
-
                             <div class="col-md-6">
                                 <label class="form-label">
                                     Nama Barang
@@ -92,11 +91,9 @@
                                     class="form-control"
                                     required>
                             </div>
-
                         </div>
 
                         <div class="row mt-3">
-
                             <div class="col-md-6">
                                 <label class="form-label">
                                     Stok Awal
@@ -121,28 +118,23 @@
                                     <option>Baik</option>
                                     <option>Rusak Ringan</option>
                                     <option>Rusak Berat</option>
-
                                 </select>
                             </div>
-
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
-
                             <button
-                                class="btn btn-success"
+                                class="btn btn-success px-4"
                                 type="submit">
-
+                                <i class="bi bi-floppy me-1"></i>
                                 Simpan
-
                             </button>
-
                         </div>
-
                     </form>                    
 
                 </div>
             </div>
+
         </div>
     </body>
 

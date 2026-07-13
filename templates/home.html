@@ -6,8 +6,12 @@
     <title>SIPACAR</title>
 
     <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-    rel="stylesheet">
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+    
+    <link 
+        rel="stylesheet" 
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link
         href="/static/css/style.css"
@@ -15,7 +19,8 @@
 
     <style>
         .menu-icon {
-            font-size: 2.5rem;
+            font-size: 3rem;
+            line-height: 1;
         }
 
         .system-title {
@@ -27,138 +32,113 @@
 
 </head>
 
-<body>
+<body class="dashboard-page">
     {{template "navbar" .}}
 
-    <div class="container py-5">
+    <div class="dashboard-content">
+        <div class="container py-4">
 
-        <div class="text-center mb-5">
-
-            <span class="badge bg-success mb-3">
-                Sistem Inventaris Desa
-            </span>
-
-            <h1 class="system-title">
-                SIPACAR
-            </h1>
-
-            <p class="lead text-muted mb-1">
-                Sistem Informasi Pengelolaan Inventaris Carangrejo
-            </p>
-
-            <p class="text-secondary">
-                Digitalisasi Pengelolaan Inventaris dan Aset Desa
-            </p>
-
-        </div>
-
-        <div class="row justify-content-center g-4">
-
-            <div class="col-md-4">
-
-                <a href="/barang"
-                    class="text-decoration-none text-dark">
-
-                    <div class="card h-100">
-
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon">
-                                📦
-                            </div>
-
-                            <h5 class="fw-bold mt-3">
-                                Data Barang
-                            </h5>
-
-                            <p class="text-muted mb-0">
-                                Kelola data inventaris barang desa
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </a>
-
+            <div class="text-center mb-4">
+                <span class="badge bg-success mb-3">
+                    Sistem Inventaris Desa
+                </span>
+                <h1 class="system-title">
+                    SIPACAR
+                </h1>
+                <p class="lead text-muted mb-1">
+                    Sistem Informasi Pengelolaan Inventaris Carangrejo
+                </p>
+                <p class="text-secondary">
+                    Digitalisasi Pengelolaan Inventaris dan Aset Desa
+                </p>
             </div>
 
-            <div class="col-md-4">
+            <div class="row justify-content-center g-4">
+                <div class="col-md-4">
+                    <a href="/barang"
+                        class="text-decoration-none text-dark">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="menu-icon text-success">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
 
-                <a href="/barang-masuk"
-                    class="text-decoration-none text-dark">
+                                <h5 class="fw-bold mt-3">
+                                    Data Barang
+                                </h5>
 
-                    <div class="card h-100">
-
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon">
-                                📥
+                                <p class="text-muted mb-0">
+                                    Kelola data inventaris barang desa
+                                </p>
                             </div>
-
-                            <h5 class="fw-bold mt-3">
-                                Barang Masuk
-                            </h5>
-
-                            <p class="text-muted mb-0">
-                                Catat transaksi barang masuk
-                            </p>
-
                         </div>
+                    </a>
+                </div>
 
-                    </div>
+                <div class="col-md-4">
+                    <a href="/barang-masuk"
+                        class="text-decoration-none text-dark">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="menu-icon text-success">
+                                    <i class="bi bi-box-arrow-in-down"></i>
+                                </div>
+                                
+                                <h5 class="fw-bold mt-3">
+                                    Barang Masuk
+                                </h5>
 
-                </a>
+                                <p class="text-muted mb-0">
+                                    Catat transaksi barang masuk
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
 
+                <div class="col-md-4">
+                    <a href="/barang-keluar"
+                        class="text-decoration-none text-dark">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <div class="menu-icon text-success">
+                                    <i class="bi bi-box-arrow-up"></i>
+                                </div>
+
+                                <h5 class="fw-bold mt-3">
+                                    Barang Keluar
+                                </h5>
+
+                                <p class="text-muted mb-0">
+                                    Catat transaksi barang keluar
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="text-center mt-5">
+                <span class="badge rounded-pill text-bg-light border px-4 py-3 me-2 dashboard-badge">
+                    <i class="bi bi-box-seam text-success"></i>
+                    <strong class="ms-2">
+                        Total Barang
+                    </strong>
+                    :
+                    {{.Data.TotalBarang}}
+                </span>
 
-                <a href="/barang-keluar"
-                    class="text-decoration-none text-dark">
-
-                    <div class="card h-100">
-
-                        <div class="card-body text-center">
-
-                            <div class="menu-icon">
-                                📤
-                            </div>
-
-                            <h5 class="fw-bold mt-3">
-                                Barang Keluar
-                            </h5>
-
-                            <p class="text-muted mb-0">
-                                Catat transaksi barang keluar
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </a>
-
+                <span class="badge rounded-pill text-bg-light border px-4 py-3 dashboard-badge">
+                    <i class="bi bi-boxes text-success"></i>
+                    <strong class="ms-2">
+                        Total Stok
+                    </strong>
+                    :
+                    {{.Data.TotalStok}}
+                </span>
             </div>
 
         </div>
-
-        <div class="text-center mt-5">
-
-            <small class="text-muted">
-
-                Total Barang :
-                <strong>{{.Data.TotalBarang}}</strong>
-
-                &nbsp; | &nbsp;
-
-                Total Stok :
-                <strong>{{.Data.TotalStok}}</strong>
-
-            </small>
-
-        </div>
-
     </div>
 
     {{template "footer" .}}
