@@ -388,6 +388,17 @@ func barangMasukHandler(
 			return
 		}
 
+		if jumlah <= 0 {
+			SetFlash(
+				w,
+				"warning",
+				"Jumlah barang masuk harus lebih dari 0",
+			)
+
+			http.Redirect(w, r, "/barang-masuk", http.StatusSeeOther)
+			return
+		}
+
 		err = insertBarangMasuk(
 			barangID,
 			jumlah,
@@ -474,6 +485,17 @@ func barangKeluarHandler(
 				err.Error(),
 				http.StatusBadRequest,
 			)
+			return
+		}
+
+		if jumlah <= 0 {
+			SetFlash(
+				w,
+				"warning",
+				"Jumlah barang keluar harus lebih dari 0",
+			)
+
+			http.Redirect(w, r, "/barang-keluar", http.StatusSeeOther)
 			return
 		}
 

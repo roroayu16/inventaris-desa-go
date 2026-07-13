@@ -144,7 +144,7 @@ func generateKodeBarang(kategoriID string) (string, error) {
 
 	var nomor int
 
-	fmt.Sscanf(
+	fmt.Scanf(
 		kodeTerakhir,
 		kodeKategori+"-%d",
 		&nomor,
