@@ -5,13 +5,29 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
 )
 
 var db *sql.DB
 
 var ErrKategoriMasihDigunakan = errors.New("kategori masih digunakan")
+
+// ==============================================
+// USER MODEL
+// ==============================================
+type User struct {
+	ID        int
+	Username  string
+	Password  string
+	Nama      string
+	Role      string
+	Aktif     int
+	CreatedAt string
+	UpdatedAt string
+}
 
 // ==============================================
 // DATABASE INITIALIZATION
@@ -28,6 +44,7 @@ func initDB() {
 	}
 
 	createTable()
+	createInitialSuperAdministrator()
 
 	log.Println("Database INIT Success")
 }
@@ -100,6 +117,170 @@ func createTable() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// USERS
+	queryUsers := `
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username TEXT NOT NULL UNIQUE,
+		password TEXT NOT NULL,
+		nama TEXT NOT NULL,
+		role TEXT NOT NULL CHECK (
+			role IN ('administrator', 'super_administrator')
+		),
+		aktif INTEGER NOT NULL DEFAULT 1,
+		created_at TEXT NOT NULL,
+		updated_at TEXT NOT NULL
+	);
+	`
+
+	if _, err := db.Exec(queryUsers); err != nil {
+		log.Fatal(err)
+	}
+
+	// SESSIONS
+	querySessions := `
+	CREATE TABLE IF NOT EXISTS sessions (
+		id 	INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		token TEXT NOT NULL UNIQUE,
+		created_at TEXT NOT NULL,
+		expires_at TEXT NOT NULL,
+		FOREIGN KEY (user_id) REFERENCES users(id)
+	);
+	`
+	if _, err := db.Exec(querySessions); err != nil {
+		log.Fatal(err)
+	}
+
+	// LOG KEGIATAN
+	queryLogKegiatan := `
+	CREATE TABLE IF NOT EXISTS log_kegiatan (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER,
+		aktivitas TEXT NOT NULL,
+		keterangan TEXT,
+		waktu TEXT NOT NULL,
+		FOREIGN KEY (user_id) REFERENCES users(id)
+	);
+	`
+	if _, err := db.Exec(queryLogKegiatan); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// ==============================================
+// USER DATABASE FUNCTIONS
+// ==============================================
+func getUserByUsername(username string) (User, error) {
+	var user User
+
+	err := db.QueryRow(`
+		SELECT
+			id,
+			username,
+			password,
+			nama,
+			role,
+			aktif,
+			created_at,
+			updated_at
+		FROM users
+		WHERE username = ?
+	`, username).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Password,
+		&user.Nama,
+		&user.Role,
+		&user.Aktif,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	return user, err
+}
+
+// ==============================================
+// PASSWORD SECURITY
+// ==============================================
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
+}
+
+func checkPassword(password string, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword(
+		[]byte(hashedPassword),
+		[]byte(password),
+	)
+
+	return err == nil
+}
+
+// ==============================================
+// INITIAL ADMINISTRATOR
+// ==============================================
+func createInitialSuperAdministrator() {
+	var count int
+
+	err := db.QueryRow(`
+        SELECT COUNT(*)
+        FROM users
+    `).Scan(&count)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Jika sudah ada user, tidak perlu membuat akun awal lagi
+	if count > 0 {
+		return
+	}
+
+	username := "superadmin"
+	password := "admin123"
+	nama := "Super Administrator"
+	role := "super_administrator"
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	hashedPassword, err := hashPassword(password)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(`
+        INSERT INTO users (
+            username,
+            password,
+            nama,
+            role,
+            aktif,
+            created_at,
+            updated_at
+        )
+        VALUES (?, ?, ?, ?, 1, ?, ?)
+    `,
+		username,
+		hashedPassword,
+		nama,
+		role,
+		now,
+		now,
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Initial Super Administrator created")
 }
 
 // ==============================================
