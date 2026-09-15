@@ -10,6 +10,57 @@ import (
 )
 
 // ==============================================
+// LOGIN
+// ==============================================
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == "GET" {
+		renderTemplate(w, r, "login.html", "", nil)
+		return
+	}
+
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
+	user, err := getUserByUsername(username)
+	if err != nil {
+		renderTemplate(
+			w,
+			r,
+			"login.html",
+			"",
+			"Username atau password salah",
+		)
+		return
+	}
+
+	if user.Aktif != 1 {
+		renderTemplate(
+			w,
+			r,
+			"login.html",
+			"",
+			"Akun tidak aktif",
+		)
+		return
+	}
+
+	if !checkPassword(password, user.Password) {
+		renderTemplate(
+			w,
+			r,
+			"login.html",
+			"",
+			"Username atau password salah",
+		)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ==============================================
 // DASHBOARD
 // ==============================================
 

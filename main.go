@@ -16,6 +16,9 @@ func main() {
 		),
 	)
 
+	//LOGIN
+	http.HandleFunc("/login", loginHandler)
+
 	// DASHBOARD
 	http.HandleFunc("/", homeHandler)
 
