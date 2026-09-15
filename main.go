@@ -22,8 +22,14 @@ func main() {
 	// DASHBOARD
 	http.HandleFunc("/", homeHandler)
 
-	// Profil
+	// PROFIL
 	http.HandleFunc("/profil", requireLogin(profilHandler))
+
+	// KELOLA USER
+	http.HandleFunc("/kelola-user", requireSuperAdmin(kelolaUserHandler))
+
+	// RESET PASSWORD ADMIN
+	http.HandleFunc("/kelola-user/reset-password", requireSuperAdmin(resetAdminPasswordHandler))
 
 	// LOGOUT
 	http.HandleFunc("/logout", logoutHandler)

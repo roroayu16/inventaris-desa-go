@@ -172,6 +172,78 @@ func profilHandler(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+// KELOLA USER
+func kelolaUserHandler(w http.ResponseWriter, r *http.Request) {
+
+	users, err := getAllUsers()
+
+	if err != nil {
+		http.Error(
+			w,
+			"Gagal mengambil data user",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	renderTemplate(
+		w,
+		r,
+		"kelola-user.html",
+		"",
+		users,
+	)
+}
+
+// RESET PASSWORD
+func resetAdminPasswordHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			"Method tidak diizinkan",
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	newPassword, err := generateTemporaryPassword()
+
+	if err != nil {
+		http.Error(
+			w,
+			"Gagal membuat password sementara",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	err = resetAdminPassword(newPassword)
+
+	if err != nil {
+		http.Error(
+			w,
+			"Gagal mereset password",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	SetFlashWithDuration(
+		w,
+		"success",
+		"Password administrator berhasil direset. Password sementara: "+newPassword,
+		30000, // 30 detik
+	)
+
+	http.Redirect(
+		w,
+		r,
+		"/kelola-user",
+		http.StatusSeeOther,
+	)
+}
+
 // ==============================================
 // LOGOUT
 // ==============================================

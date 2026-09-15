@@ -188,6 +188,59 @@ func getUserByUsername(username string) (User, error) {
 	return user, err
 }
 
+func getAllUsers() ([]User, error) {
+
+	rows, err := db.Query(`
+        SELECT
+            id,
+            username,
+            password,
+            nama,
+            role,
+            aktif,
+            created_at,
+            updated_at
+        FROM users
+        ORDER BY id ASC
+    `)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+
+		var user User
+
+		err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Password,
+			&user.Nama,
+			&user.Role,
+			&user.Aktif,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 // ==============================================
 // PASSWORD SECURITY
 // ==============================================
@@ -210,6 +263,54 @@ func checkPassword(password string, hashedPassword string) bool {
 	)
 
 	return err == nil
+}
+
+// reset Admin Password
+func resetAdminPassword(newPassword string) error {
+
+	hashedPassword, err := hashPassword(newPassword)
+
+	if err != nil {
+		return err
+	}
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	_, err = db.Exec(`
+        UPDATE users
+        SET
+            password = ?,
+            updated_at = ?
+        WHERE username = 'admin'
+    `,
+		hashedPassword,
+		now,
+	)
+
+	return err
+}
+
+func generateTemporaryPassword() (string, error) {
+
+	const characters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
+
+	const passwordLength = 10
+
+	randomBytes := make([]byte, passwordLength)
+
+	_, err := rand.Read(randomBytes)
+
+	if err != nil {
+		return "", err
+	}
+
+	password := make([]byte, passwordLength)
+
+	for i := range randomBytes {
+		password[i] = characters[int(randomBytes[i])%len(characters)]
+	}
+
+	return string(password), nil
 }
 
 // ==============================================
@@ -385,33 +486,54 @@ func getCurrentSessionInfo(r *http.Request) (SessionInfo, error) {
 // ==============================================
 // INITIAL ADMINISTRATOR
 // ==============================================
+
 func createInitialSuperAdministrator() {
+
+	createUserIfNotExists(
+		"superadmin",
+		"superadmin123",
+		"Super Administrator",
+		"super_administrator",
+	)
+
+	createUserIfNotExists(
+		"admin",
+		"admin123",
+		"Administrator",
+		"administrator",
+	)
+}
+
+func createUserIfNotExists(
+	username string,
+	password string,
+	nama string,
+	role string,
+) {
+
 	var count int
 
 	err := db.QueryRow(`
         SELECT COUNT(*)
         FROM users
-    `).Scan(&count)
+        WHERE username = ?
+    `, username).Scan(&count)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Jika sudah ada user, tidak perlu membuat akun awal lagi
 	if count > 0 {
 		return
 	}
 
-	username := "superadmin"
-	password := "admin123"
-	nama := "Super Administrator"
-	role := "super_administrator"
-	now := time.Now().Format("2006-01-02 15:04:05")
-
 	hashedPassword, err := hashPassword(password)
+
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	now := time.Now().Format("2006-01-02 15:04:05")
 
 	_, err = db.Exec(`
         INSERT INTO users (
@@ -437,7 +559,7 @@ func createInitialSuperAdministrator() {
 		log.Fatal(err)
 	}
 
-	log.Println("Initial Super Administrator created")
+	log.Println("User created:", username)
 }
 
 // ==============================================

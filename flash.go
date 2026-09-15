@@ -3,12 +3,14 @@ package main
 import (
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
 type Flash struct {
-	Type    string
-	Message string
+	Type     string
+	Message  string
+	Duration int
 }
 
 func SetFlash(
@@ -16,7 +18,25 @@ func SetFlash(
 	flashType string,
 	message string,
 ) {
-	value := url.QueryEscape(flashType + "|" + message)
+
+	SetFlashWithDuration(
+		w,
+		flashType,
+		message,
+		5000,
+	)
+}
+
+func SetFlashWithDuration(
+	w http.ResponseWriter,
+	flashType string,
+	message string,
+	duration int,
+) {
+
+	value := url.QueryEscape(
+		flashType + "|" + message + "|" + strconv.Itoa(duration),
+	)
 
 	http.SetCookie(
 		w,
@@ -32,6 +52,7 @@ func SetFlash(
 func GetFlash(r *http.Request, w http.ResponseWriter) *Flash {
 
 	cookie, err := r.Cookie("flash")
+
 	if err != nil {
 		return nil
 	}
@@ -46,14 +67,25 @@ func GetFlash(r *http.Request, w http.ResponseWriter) *Flash {
 
 	value, _ := url.QueryUnescape(cookie.Value)
 
-	parts := strings.SplitN(value, "|", 2)
+	parts := strings.SplitN(value, "|", 3)
 
-	if len(parts) != 2 {
+	if len(parts) < 2 {
 		return nil
 	}
 
+	duration := 5000
+
+	if len(parts) == 3 {
+		parsedDuration, err := strconv.Atoi(parts[2])
+
+		if err == nil && parsedDuration > 0 {
+			duration = parsedDuration
+		}
+	}
+
 	return &Flash{
-		Type:    parts[0],
-		Message: parts[1],
+		Type:     parts[0],
+		Message:  parts[1],
+		Duration: duration,
 	}
 }

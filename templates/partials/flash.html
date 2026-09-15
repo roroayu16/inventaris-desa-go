@@ -6,7 +6,8 @@
 
     <div id="flashMessage"
          class="alert alert-{{.Flash.Type}} alert-dismissible fade show"
-         role="alert">
+         role="alert"
+         data-flash-duration="{{.Flash.Duration}}">
 
         {{.Flash.Message}}
 
@@ -21,18 +22,22 @@
 </div>
 
 <script>
-setTimeout(function(){
+    document.addEventListener("DOMContentLoaded", function() {
+        const flash = document.getElementById("flashMessage");
 
-    const flash = document.getElementById("flashMessage");
+        if (!flash) {
+            return;
+        }
 
-    if(flash){
+        const duration = Number(
+            flash.dataset.flashDuration
+        );
 
-        bootstrap.Alert
-            .getOrCreateInstance(flash)
-            .close();
-    }
-
-},3000);
+        setTimeout(function() {
+            const alert = bootstrap.Alert.getOrCreateInstance(flash);
+            alert.close();
+        }, duration);
+    });
 </script>
 
 {{end}}
