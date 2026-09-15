@@ -99,9 +99,30 @@
 
                 </ul>
 
-                <span class="text-muted">
-                    Versi 1.0
-                </span>
+                {{if .User}}
+                    <div class="dropdown">
+                        <a  class="btn btn-outline-success btn-sm px-3 fw-bold dropdown-toggle"
+                            href="#"
+                            role="button"
+                            data-bs-toggle="dropdown">
+                            {{.User.Username}}
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a  class="dropdown-item fw-bold text-danger"
+                                    href="/logout">
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {{else}}
+                    <a  class="btn btn-outline-success btn-sm px-3 fw-bold"
+                        href="/login">
+                        Login
+                    </a>
+                {{end}}
 
             </div>
 

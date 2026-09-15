@@ -9,6 +9,7 @@ type TemplateData struct {
 	ActivePage string
 	Flash      *Flash
 	Data       interface{}
+	User       *User
 }
 
 func renderTemplate(
@@ -30,10 +31,18 @@ func renderTemplate(
 		return
 	}
 
+	var currentUser *User
+
+	user, err := getCurrentUser(r)
+	if err == nil {
+		currentUser = &user
+	}
+
 	page := TemplateData{
 		ActivePage: activePage,
 		Flash:      GetFlash(r, w),
 		Data:       data,
+		User:       currentUser,
 	}
 
 	err = tmpl.Execute(w, page)
