@@ -57,7 +57,86 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Buat session
+	token, err := createSession(user.ID)
+	if err != nil {
+		http.Error(
+			w,
+			"Gagal membuat session",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	// Simpan token session ke cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   8 * 60 * 60,
+	})
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// Login Middleware
+func requireLogin(handler http.HandlerFunc) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		_, err := getCurrentUser(r)
+
+		if err != nil {
+			http.Redirect(
+				w,
+				r,
+				"/login",
+				http.StatusSeeOther,
+			)
+			return
+		}
+
+		handler(w, r)
+	}
+}
+
+// ==============================================
+// LOGOUT
+// ==============================================
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Ambil cookie session
+	cookie, err := r.Cookie("session_token")
+
+	if err == nil {
+
+		// Hapus session dari database
+		_, _ = db.Exec(`
+             DELETE FROM sessions
+             WHERE token = ?
+         `, cookie.Value)
+	}
+
+	// Hapus cookie session dari browser
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	// Kembali ke Dashboard
+	http.Redirect(
+		w,
+		r,
+		"/",
+		http.StatusSeeOther,
+	)
 }
 
 // ==============================================

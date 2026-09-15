@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -223,6 +226,136 @@ func checkPassword(password string, hashedPassword string) bool {
 	)
 
 	return err == nil
+}
+
+// ==============================================
+// SESSION MANAGEMENT
+// ==============================================
+
+func generateSessionToken() (string, error) {
+
+	bytes := make([]byte, 32)
+
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(bytes), nil
+}
+
+func createSession(userID int) (string, error) {
+
+	token, err := generateSessionToken()
+	if err != nil {
+		return "", err
+	}
+
+	now := time.Now()
+	expiresAt := now.Add(8 * time.Hour)
+
+	_, err = db.Exec(`
+        INSERT INTO sessions (
+            user_id,
+            token,
+            created_at,
+            expires_at
+        )
+        VALUES (?, ?, ?, ?)
+    `,
+		userID,
+		token,
+		now.Format("2006-01-02 15:04:05"),
+		expiresAt.Format("2006-01-02 15:04:05"),
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+// ==============================================
+// SESSION VALIDATION
+// ==============================================
+
+func getUserBySessionToken(token string) (User, error) {
+
+	var user User
+	var expiresAt string
+
+	err := db.QueryRow(`
+        SELECT
+            users.id,
+            users.username,
+            users.password,
+            users.nama,
+            users.role,
+            users.aktif,
+            users.created_at,
+            users.updated_at,
+            sessions.expires_at
+        FROM sessions
+        JOIN users
+            ON users.id = sessions.user_id
+        WHERE sessions.token = ?
+    `, token).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Password,
+		&user.Nama,
+		&user.Role,
+		&user.Aktif,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&expiresAt,
+	)
+
+	if err != nil {
+		return User{}, err
+	}
+
+	// Cek apakah session sudah kedaluwarsa
+	expirationTime, err := time.Parse(
+		"2006-01-02 15:04:05",
+		expiresAt,
+	)
+
+	if err != nil {
+		return User{}, err
+	}
+
+	if time.Now().After(expirationTime) {
+		// Hapus session yang sudah kedaluwarsa
+		_, _ = db.Exec(`
+            DELETE FROM sessions
+            WHERE token = ?
+        `, token)
+
+		return User{}, errors.New("session expired")
+	}
+
+	// Cek apakah akun masih aktif
+	if user.Aktif != 1 {
+		return User{}, errors.New("user inactive")
+	}
+
+	return user, nil
+}
+
+// ==============================================
+// LOGIN CHECK
+// ==============================================
+
+func getCurrentUser(r *http.Request) (User, error) {
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		return User{}, err
+	}
+
+	return getUserBySessionToken(cookie.Value)
 }
 
 // ==============================================

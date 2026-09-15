@@ -16,33 +16,36 @@ func main() {
 		),
 	)
 
-	//LOGIN
+	// LOGIN
 	http.HandleFunc("/login", loginHandler)
 
 	// DASHBOARD
 	http.HandleFunc("/", homeHandler)
 
+	// LOGOUT
+	http.HandleFunc("/logout", logoutHandler)
+
 	// BARANG
-	http.HandleFunc("/barang", barangHandler)
-	http.HandleFunc("/barang/tambah", tambahBarangHandler)
-	http.HandleFunc("/barang/edit", editBarangHandler)
-	http.HandleFunc("/barang/hapus", hapusBarangHandler)
-	http.HandleFunc("/barang/detail", detailBarangHandler)
+	http.HandleFunc("/barang", requireLogin(barangHandler))
+	http.HandleFunc("/barang/tambah", requireLogin(tambahBarangHandler))
+	http.HandleFunc("/barang/edit", requireLogin(editBarangHandler))
+	http.HandleFunc("/barang/hapus", requireLogin(hapusBarangHandler))
+	http.HandleFunc("/barang/detail", requireLogin(detailBarangHandler))
 
 	// KATEGORI
-	http.HandleFunc("/kategori", kategoriHandler)
-	http.HandleFunc("/kategori/tambah", tambahKategoriHandler)
-	http.HandleFunc("/kategori/edit", editKategoriHandler)
-	http.HandleFunc("/kategori/hapus", hapusKategoriHandler)
+	http.HandleFunc("/kategori", requireLogin(kategoriHandler))
+	http.HandleFunc("/kategori/tambah", requireLogin(tambahKategoriHandler))
+	http.HandleFunc("/kategori/edit", requireLogin(editKategoriHandler))
+	http.HandleFunc("/kategori/hapus", requireLogin(hapusKategoriHandler))
 
 	// BARANG MASUK
-	http.HandleFunc("/barang-masuk", barangMasukHandler)
+	http.HandleFunc("/barang-masuk", requireLogin(barangMasukHandler))
 
 	// BARANG KELUAR
-	http.HandleFunc("/barang-keluar", barangKeluarHandler)
+	http.HandleFunc("/barang-keluar", requireLogin(barangKeluarHandler))
 
 	// LAPORAN
-	http.HandleFunc("/export/barang", exportBarangExcelHandler)
+	http.HandleFunc("/export/barang", requireLogin(exportBarangExcelHandler))
 
 	log.Println("server berjalan di http://localhost:8080")
 
