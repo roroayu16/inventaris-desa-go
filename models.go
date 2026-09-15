@@ -1,5 +1,22 @@
 package main
 
+import "time"
+
+type User struct {
+	ID        int
+	Username  string
+	Password  string
+	Nama      string
+	Role      string
+	Aktif     int
+	CreatedAt string
+	UpdatedAt string
+}
+
+type SessionInfo struct {
+	ExpiresAt time.Time
+}
+
 type Barang struct {
 	ID         int
 	KategoriID int

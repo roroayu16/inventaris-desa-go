@@ -19,23 +19,8 @@ var db *sql.DB
 var ErrKategoriMasihDigunakan = errors.New("kategori masih digunakan")
 
 // ==============================================
-// USER MODEL
-// ==============================================
-type User struct {
-	ID        int
-	Username  string
-	Password  string
-	Nama      string
-	Role      string
-	Aktif     int
-	CreatedAt string
-	UpdatedAt string
-}
-
-// ==============================================
 // DATABASE INITIALIZATION
 // ==============================================
-
 func initDB() {
 	log.Println("Database INIT Start")
 
@@ -55,7 +40,6 @@ func initDB() {
 // ==============================================
 // DATABASE SCHEMA
 // ==============================================
-
 func createTable() {
 	// BARANG
 	queryBarang := `
@@ -231,7 +215,6 @@ func checkPassword(password string, hashedPassword string) bool {
 // ==============================================
 // SESSION MANAGEMENT
 // ==============================================
-
 func generateSessionToken() (string, error) {
 
 	bytes := make([]byte, 32)
@@ -279,7 +262,6 @@ func createSession(userID int) (string, error) {
 // ==============================================
 // SESSION VALIDATION
 // ==============================================
-
 func getUserBySessionToken(token string) (User, error) {
 
 	var user User
@@ -347,7 +329,6 @@ func getUserBySessionToken(token string) (User, error) {
 // ==============================================
 // LOGIN CHECK
 // ==============================================
-
 func getCurrentUser(r *http.Request) (User, error) {
 
 	cookie, err := r.Cookie("session_token")
@@ -356,6 +337,49 @@ func getCurrentUser(r *http.Request) (User, error) {
 	}
 
 	return getUserBySessionToken(cookie.Value)
+}
+
+func getCurrentSessionInfo(r *http.Request) (SessionInfo, error) {
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		return SessionInfo{}, err
+	}
+
+	var expiresAt string
+
+	err = db.QueryRow(`
+        SELECT expires_at
+        FROM sessions
+        WHERE token = ?
+    `, cookie.Value).Scan(&expiresAt)
+
+	if err != nil {
+		return SessionInfo{}, err
+	}
+
+	expirationTime, err := time.ParseInLocation(
+		"2006-01-02 15:04:05",
+		expiresAt,
+		time.Local,
+	)
+
+	if err != nil {
+		return SessionInfo{}, err
+	}
+
+	if time.Now().After(expirationTime) {
+		_, _ = db.Exec(`
+            DELETE FROM sessions
+            WHERE token = ?
+        `, cookie.Value)
+
+		return SessionInfo{}, errors.New("session expired")
+	}
+
+	return SessionInfo{
+		ExpiresAt: expirationTime,
+	}, nil
 }
 
 // ==============================================

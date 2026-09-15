@@ -22,6 +22,9 @@ func main() {
 	// DASHBOARD
 	http.HandleFunc("/", homeHandler)
 
+	// Profil
+	http.HandleFunc("/profil", requireLogin(profilHandler))
+
 	// LOGOUT
 	http.HandleFunc("/logout", logoutHandler)
 

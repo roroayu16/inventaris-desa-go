@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -125,6 +126,50 @@ func requireSuperAdmin(handler http.HandlerFunc) http.HandlerFunc {
 
 		handler(w, r)
 	}
+}
+
+// PROFIL
+func profilHandler(w http.ResponseWriter, r *http.Request) {
+
+	user, err := getCurrentUser(r)
+
+	if err != nil {
+		http.Redirect(
+			w,
+			r,
+			"/login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	sessionInfo, err := getCurrentSessionInfo(r)
+
+	if err != nil {
+		http.Redirect(
+			w,
+			r,
+			"/login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	data := struct {
+		User       User
+		SessionEnd time.Time
+	}{
+		User:       user,
+		SessionEnd: sessionInfo.ExpiresAt,
+	}
+
+	renderTemplate(
+		w,
+		r,
+		"profil.html",
+		"",
+		data,
+	)
 }
 
 // ==============================================
