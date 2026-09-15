@@ -107,7 +107,6 @@
                                 </label>
 
                                 <div class="input-group">
-
                                     <span class="input-group-text bg-light">
                                         <i class="bi bi-lock"></i>
                                     </span>
@@ -117,9 +116,16 @@
                                         class="form-control"
                                         id="password"
                                         name="password"
-                                        placeholder="Masukkan password"
+                                        placeholder="Masukkan Password"
                                         required>
-
+                                    
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="togglePassword"
+                                        title="Tampilkan Password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
 
                             </div>
@@ -185,6 +191,31 @@
                 }, 500);
             } 
         }, 3000);
+    </script>
+
+    <script>
+        const togglePassword = document.getElementById("togglePassword");
+        const password = document.getElementById("password");
+
+        togglePassword.addEventListener("click", function () {
+
+            if (password.type === "password") {
+                password.type = "text";
+
+                this.querySelector("i").classList.remove("bi-eye");
+                this.querySelector("i").classList.add("bi-eye-slash");
+
+                this.title = "Sembunyikan password";
+
+            } else {
+                password.type = "password";
+
+                this.querySelector("i").classList.remove("bi-eye-slash");
+                this.querySelector("i").classList.add("bi-eye");
+
+                this.title = "Tampilkan password";
+            }
+        });
     </script>
 
 </body>

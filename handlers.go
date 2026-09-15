@@ -102,6 +102,31 @@ func requireLogin(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// Super Administrator Middleware
+func requireSuperAdmin(handler http.HandlerFunc) http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		user, err := getCurrentUser(r)
+		if err != nil {
+			http.Redirect(
+				w,
+				r,
+				"/login",
+				http.StatusSeeOther,
+			)
+			return
+		}
+
+		if user.Role != "super_administrator" {
+			http.Error(w, "Akses ditolak", http.StatusForbidden)
+			return
+		}
+
+		handler(w, r)
+	}
+}
+
 // ==============================================
 // LOGOUT
 // ==============================================

@@ -108,13 +108,41 @@
                             {{.User.Username}}
                         </a>
 
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a  class="dropdown-item fw-bold text-danger"
-                                    href="/logout">
+                                <a class="dropdown-item"
+                                href="/profil">
+                                    Profil
+                                </a>
+                            </li>
+
+                            {{if eq .User.Role "super_administrator"}}
+                                <li>
+                                    <a class="dropdown-item"
+                                    href="/log-kegiatan">
+                                        Log Kegiatan
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                    href="/kelola-user">
+                                        Kelola User
+                                    </a>
+                                </li>
+                            {{end}}
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item fw-bold text-danger"
+                                href="/logout">
                                     Logout
                                 </a>
                             </li>
+
                         </ul>
                     </div>
                 {{else}}
