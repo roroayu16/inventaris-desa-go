@@ -242,105 +242,82 @@ func getAllUsers() ([]User, error) {
 }
 
 // ==============================================
-// PASSWORD SECURITY
+// INITIAL ADMINISTRATOR
 // ==============================================
-func hashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(password),
-		bcrypt.DefaultCost,
+
+func createInitialSuperAdministrator() {
+
+	createUserIfNotExists(
+		"superadmin",
+		"superadmin123",
+		"Super Administrator",
+		"super_administrator",
 	)
+
+	createUserIfNotExists(
+		"admin",
+		"admin123",
+		"Administrator",
+		"administrator",
+	)
+}
+
+func createUserIfNotExists(
+	username string,
+	password string,
+	nama string,
+	role string,
+) {
+
+	var count int
+
+	err := db.QueryRow(`
+        SELECT COUNT(*)
+        FROM users
+        WHERE username = ?
+    `, username).Scan(&count)
+
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 
-	return string(hashedPassword), nil
-}
+	if count > 0 {
+		return
+	}
 
-func checkPassword(password string, hashedPassword string) bool {
-	err := bcrypt.CompareHashAndPassword(
-		[]byte(hashedPassword),
-		[]byte(password),
-	)
-
-	return err == nil
-}
-
-// RESET ADMIN PASSWORD
-func resetAdminPassword(newPassword string) error {
-
-	hashedPassword, err := hashPassword(newPassword)
+	hashedPassword, err := hashPassword(password)
 
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
 	_, err = db.Exec(`
-        UPDATE users
-        SET
-            password = ?,
-            updated_at = ?
-        WHERE username = 'admin'
+        INSERT INTO users (
+            username,
+            password,
+            nama,
+            role,
+            aktif,
+            created_at,
+            updated_at
+        )
+        VALUES (?, ?, ?, ?, 1, ?, ?)
     `,
+		username,
 		hashedPassword,
+		nama,
+		role,
+		now,
 		now,
 	)
 
-	return err
-}
-
-// PASSWORD ACAK SEMENTARA
-func generateTemporaryPassword() (string, error) {
-
-	const characters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
-
-	const passwordLength = 10
-
-	randomBytes := make([]byte, passwordLength)
-
-	_, err := rand.Read(randomBytes)
-
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 
-	password := make([]byte, passwordLength)
-
-	for i := range randomBytes {
-		password[i] = characters[int(randomBytes[i])%len(characters)]
-	}
-
-	return string(password), nil
-}
-
-// UBAH PASSWORD USER
-func changeUserPassword(
-	userID int,
-	newPassword string,
-) error {
-
-	hashedPassword, err := hashPassword(newPassword)
-
-	if err != nil {
-		return err
-	}
-
-	now := time.Now().Format("2006-01-02 15:04:05")
-
-	_, err = db.Exec(`
-        UPDATE users
-        SET
-            password = ?,
-            updated_at = ?
-        WHERE id = ?
-    `,
-		hashedPassword,
-		now,
-		userID,
-	)
-
-	return err
+	log.Println("User created:", username)
 }
 
 // ==============================================
@@ -458,6 +435,82 @@ func getUserBySessionToken(token string) (User, error) {
 }
 
 // ==============================================
+// LOG KEGIATAN
+// ==============================================
+func getAllLogKegiatan() ([]LogKegiatan, error) {
+
+	rows, err := db.Query(`
+        SELECT
+            log_kegiatan.id,
+            log_kegiatan.user_id,
+            users.username,
+            log_kegiatan.aktivitas,
+            log_kegiatan.keterangan,
+            log_kegiatan.waktu
+        FROM log_kegiatan
+        LEFT JOIN users
+            ON users.id = log_kegiatan.user_id
+        ORDER BY log_kegiatan.id DESC
+    `)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var logList []LogKegiatan
+
+	for rows.Next() {
+
+		var log LogKegiatan
+
+		err := rows.Scan(
+			&log.ID,
+			&log.UserID,
+			&log.Username,
+			&log.Aktivitas,
+			&log.Keterangan,
+			&log.Waktu,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		logList = append(logList, log)
+	}
+
+	return logList, nil
+}
+
+func logActivity(
+	userID int,
+	aktivitas string,
+	keterangan string,
+) error {
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	_, err := db.Exec(`
+		INSERT INTO log_kegiatan (
+			user_id,
+			aktivitas,
+			keterangan,
+			waktu
+		)
+		VALUES (?, ?, ?, ?)
+	`,
+		userID,
+		aktivitas,
+		keterangan,
+		now,
+	)
+
+	return err
+}
+
+// ==============================================
 // LOGIN CHECK
 // ==============================================
 func getCurrentUser(r *http.Request) (User, error) {
@@ -514,82 +567,105 @@ func getCurrentSessionInfo(r *http.Request) (SessionInfo, error) {
 }
 
 // ==============================================
-// INITIAL ADMINISTRATOR
+// PASSWORD SECURITY
 // ==============================================
-
-func createInitialSuperAdministrator() {
-
-	createUserIfNotExists(
-		"superadmin",
-		"superadmin123",
-		"Super Administrator",
-		"super_administrator",
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
 	)
+	if err != nil {
+		return "", err
+	}
 
-	createUserIfNotExists(
-		"admin",
-		"admin123",
-		"Administrator",
-		"administrator",
-	)
+	return string(hashedPassword), nil
 }
 
-func createUserIfNotExists(
-	username string,
-	password string,
-	nama string,
-	role string,
-) {
+func checkPassword(password string, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword(
+		[]byte(hashedPassword),
+		[]byte(password),
+	)
 
-	var count int
+	return err == nil
+}
 
-	err := db.QueryRow(`
-        SELECT COUNT(*)
-        FROM users
-        WHERE username = ?
-    `, username).Scan(&count)
+// RESET ADMIN PASSWORD
+func resetAdminPassword(newPassword string) error {
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if count > 0 {
-		return
-	}
-
-	hashedPassword, err := hashPassword(password)
+	hashedPassword, err := hashPassword(newPassword)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	now := time.Now().Format("2006-01-02 15:04:05")
 
 	_, err = db.Exec(`
-        INSERT INTO users (
-            username,
-            password,
-            nama,
-            role,
-            aktif,
-            created_at,
-            updated_at
-        )
-        VALUES (?, ?, ?, ?, 1, ?, ?)
+        UPDATE users
+        SET
+            password = ?,
+            updated_at = ?
+        WHERE username = 'admin'
     `,
-		username,
 		hashedPassword,
-		nama,
-		role,
-		now,
 		now,
 	)
 
+	return err
+}
+
+// PASSWORD ACAK SEMENTARA
+func generateTemporaryPassword() (string, error) {
+
+	const characters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
+
+	const passwordLength = 10
+
+	randomBytes := make([]byte, passwordLength)
+
+	_, err := rand.Read(randomBytes)
+
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	log.Println("User created:", username)
+	password := make([]byte, passwordLength)
+
+	for i := range randomBytes {
+		password[i] = characters[int(randomBytes[i])%len(characters)]
+	}
+
+	return string(password), nil
+}
+
+// UBAH PASSWORD USER
+func changeUserPassword(
+	userID int,
+	newPassword string,
+) error {
+
+	hashedPassword, err := hashPassword(newPassword)
+
+	if err != nil {
+		return err
+	}
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	_, err = db.Exec(`
+        UPDATE users
+        SET
+            password = ?,
+            updated_at = ?
+        WHERE id = ?
+    `,
+		hashedPassword,
+		now,
+		userID,
+	)
+
+	return err
 }
 
 // ==============================================

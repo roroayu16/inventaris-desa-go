@@ -13,6 +13,15 @@ type User struct {
 	UpdatedAt string
 }
 
+type LogKegiatan struct {
+	ID         int
+	UserID     int
+	Username   string
+	Aktivitas  string
+	Keterangan string
+	Waktu      string
+}
+
 type SessionInfo struct {
 	ExpiresAt time.Time
 }

@@ -29,6 +29,9 @@ func main() {
 	// KELOLA USER
 	http.HandleFunc("/kelola-user", requireSuperAdmin(kelolaUserHandler))
 
+	// LOG KEGIATAN
+	http.HandleFunc("/log-kegiatan", requireSuperAdmin(logKegiatanHandler))
+
 	// RESET PASSWORD ADMIN
 	http.HandleFunc("/kelola-user/reset-password", requireSuperAdmin(resetAdminPasswordHandler))
 

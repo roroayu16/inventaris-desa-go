@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -68,6 +69,12 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Simpan log kegiatan login
+	err = logActivity(user.ID, "login", "Pengguna berhasil login ke SIPACAR")
+	if err != nil {
+		log.Println("Gagal mencatat log kegiatan:", err)
+	}
+
 	// Simpan token session ke cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
@@ -125,6 +132,31 @@ func requireSuperAdmin(handler http.HandlerFunc) http.HandlerFunc {
 
 		handler(w, r)
 	}
+}
+
+func logKegiatanHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
+	logList, err := getAllLogKegiatan()
+
+	if err != nil {
+		http.Error(
+			w,
+			err.Error(),
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	renderTemplate(
+		w,
+		r,
+		"log_kegiatan.html",
+		"log-kegiatan",
+		logList,
+	)
 }
 
 // PROFIL
@@ -207,6 +239,19 @@ func resetAdminPasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ambil user yang melakukan reset password
+	currentUser, err := getCurrentUser(r)
+
+	if err != nil {
+		http.Redirect(
+			w,
+			r,
+			"/login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
 	newPassword, err := generateTemporaryPassword()
 
 	if err != nil {
@@ -227,6 +272,16 @@ func resetAdminPasswordHandler(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError,
 		)
 		return
+	}
+
+	// Catat aktivitas reset password
+	err = logActivity(
+		currentUser.ID,
+		"Reset Password",
+		"Password administrator berhasil direset oleh Super Administrator.",
+	)
+	if err != nil {
+		log.Println("Gagal mencatat log kegiatan:", err)
 	}
 
 	SetFlashWithDuration(
@@ -374,13 +429,22 @@ func ubahPasswordHandler(w http.ResponseWriter, r *http.Request) {
 // ==============================================
 // LOGOUT
 // ==============================================
-
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ambil cookie session
 	cookie, err := r.Cookie("session_token")
 
 	if err == nil {
+
+		// Ambil user sebelum session dihapus
+		user, err := getCurrentUser(r)
+		if err == nil {
+			// Simpan log kegiatan logout
+			err = logActivity(user.ID, "logout", "Pengguna berhasil logout dari SIPACAR")
+			if err != nil {
+				log.Println("Gagal mencatat log kegiatan:", err)
+			}
+		}
 
 		// Hapus session dari database
 		_, _ = db.Exec(`
@@ -469,13 +533,20 @@ func barangHandler(w http.ResponseWriter, r *http.Request) {
 func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 
+		currentUser, err := getCurrentUser(r)
+
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
 		kategoriID := r.FormValue("kategori_id")
 		nama := r.FormValue("nama")
 		jumlah := r.FormValue("jumlah")
 		tempat := r.FormValue("tempat")
 		kondisi := r.FormValue("kondisi")
 
-		err := insertBarang(
+		err = insertBarang(
 			kategoriID,
 			nama,
 			jumlah,
@@ -486,6 +557,16 @@ func tambahBarangHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		err = logActivity(
+			currentUser.ID,
+			"Tambah Barang",
+			"Menambahkan barang baru: "+nama,
+		)
+
+		if err != nil {
+			log.Println("Gagal mencatat log kegiatan:", err)
 		}
 
 		SetFlash(w, "success", "Barang berhasil ditambahkan")
@@ -512,6 +593,13 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 
 	// POST
 	if r.Method == "POST" {
+		currentUser, err := getCurrentUser(r)
+
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
 		idStr := r.FormValue("id")
 
 		kategoriID := r.FormValue("kategori_id")
@@ -545,6 +633,16 @@ func editBarangHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		err = logActivity(
+			currentUser.ID,
+			"Edit Barang",
+			"Mengubah data barang: "+barangLama.Nama,
+		)
+
+		if err != nil {
+			log.Println("Gagal mencatat log kegiatan:", err)
 		}
 
 		SetFlash(w, "success", "Barang berhasil diperbarui")
@@ -594,11 +692,35 @@ func hapusBarangHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	currentUser, err := getCurrentUser(r)
+
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	barang, err := getBarangByID(id)
+
+	if err != nil {
+		http.Redirect(w, r, "/barang", http.StatusSeeOther)
+		return
+	}
+
 	err = deleteBarang(id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	err = logActivity(
+		currentUser.ID,
+		"Hapus Barang",
+		"Menghapus barang: "+barang.Nama,
+	)
+
+	if err != nil {
+		log.Println("Gagal mencatat log kegiatan:", err)
 	}
 
 	SetFlash(w, "success", "Barang berhasil dihapus")
