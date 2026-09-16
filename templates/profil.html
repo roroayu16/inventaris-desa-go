@@ -18,10 +18,10 @@
 </head>
 
 <body>
-
     {{template "navbar" .}}
-    <div class="container py-4">
+    {{template "flash" .}}
 
+    <div class="container py-4">
         <div class="mb-4">
             <span class="badge bg-success mb-2">
                 Akun Pengguna
@@ -99,16 +99,14 @@
                         </div>
 
                     </div>
-
                 </div>
-
             </div>
-
 
             <!-- UBAH PASSWORD -->
             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-body p-4">
+
                         <div class="text-success mb-3">
                             <i class="bi bi-shield-lock fs-1"></i>
                         </div>
@@ -117,32 +115,134 @@
                             Ubah Password
                         </h5>
 
-                        <p class="text-muted">
-                            Ubah password akun secara berkala untuk menjaga
-                            keamanan akun SIPACAR.
-                        </p>
+                        <form
+                            method="POST"
+                            action="/profil/ubah-password">
 
-                        <button
-                            type="button"
-                            class="btn btn-success mt-2"
-                            disabled>
+                            <!-- PASSWORD LAMA -->
+                            <div class="mb-3">
+                                <label
+                                    for="passwordLama"
+                                    class="form-label fw-semibold">
+                                    Password Lama
+                                </label>
 
-                            <i class="bi bi-key me-1"></i>
-                            Ubah Password
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        class="form-control {{if eq .Data.ErrorField "password_lama"}}is-invalid{{end}}"
+                                        id="passwordLama"
+                                        name="password_lama"
+                                        placeholder="Masukkan password lama"
+                                        value="{{.Data.PasswordLama}}"
+                                        required>
+                                    
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        onclick="togglePasswordVisibility('passwordLama', 'eyePasswordLama')">
+                                        <i
+                                            class="bi bi-eye"
+                                            id="eyePasswordLama">
+                                        </i>
+                                    </button>
+                                </div>
 
-                        </button>
+                                {{if eq .Data.ErrorField "password_lama"}}
+                                    <div class="invalid-feedback d-block">
+                                        {{.Data.ErrorMessage}}
+                                    </div>
+                                {{end}}
+                            </div>
 
-                        <div class="small text-muted mt-2">
-                            Fitur akan tersedia pada tahap berikutnya.
-                        </div>
+                            <!-- PASSWORD BARU -->
+                            <div class="mb-3">
+                                <label
+                                    for="passwordBaru"
+                                    class="form-label fw-semibold">
+                                    Password Baru
+                                </label>
+
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        class="form-control {{if eq .Data.ErrorField "password_baru"}}is-invalid{{end}}"
+                                        id="passwordBaru"
+                                        name="password_baru"
+                                        placeholder="Masukkan password baru"
+                                        value="{{.Data.PasswordBaru}}"
+                                        required>
+                                    
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        onclick="togglePasswordVisibility('passwordBaru', 'eyePasswordBaru')">
+                                        <i
+                                            class="bi bi-eye"
+                                            id="eyePasswordBaru">
+                                        </i>
+                                    </button>
+                                </div>
+                                
+                                {{if eq .Data.ErrorField "password_baru"}}
+                                    <div class="invalid-feedback d-block">
+                                        {{.Data.ErrorMessage}}
+                                    </div>
+                                {{end}}
+                            </div>
+
+                            <!-- KONFIRMASI PASSWORD BARU -->
+                            <div class="mb-4">
+                                <label
+                                    for="konfirmasiPassword"
+                                    class="form-label fw-semibold">
+                                    Konfirmasi Password Baru
+                                </label>
+
+                                <!-- KONFIRMASI PASSWORD BARU -->
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        class="form-control {{if eq .Data.ErrorField "konfirmasi_password"}}is-invalid{{end}}"
+                                        id="konfirmasiPassword"
+                                        name="konfirmasi_password"
+                                        placeholder="Konfirmasi password baru"
+                                        value="{{.Data.KonfirmasiPassword}}"
+                                        required>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        onclick="togglePasswordVisibility('konfirmasiPassword', 'eyeKonfirmasiPassword')">
+                                        <i
+                                            class="bi bi-eye"
+                                            id="eyeKonfirmasiPassword">
+                                        </i>
+                                    </button>
+                                </div>
+
+                                {{if eq .Data.ErrorField "konfirmasi_password"}}
+                                    <div class="invalid-feedback d-block">
+                                        {{.Data.ErrorMessage}}
+                                    </div>
+                                {{end}}
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button
+                                    type="submit"
+                                    class="btn btn-warning">
+                                    <i class="bi bi-check-lg me-1"></i>
+                                    Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+
                     </div>
-
                 </div>
-
             </div>
 
         </div>
-
     </div>
 
     {{template "footer" .}}
@@ -195,9 +295,7 @@
             const minutes = Math.floor(
                 (totalSeconds % 3600) / 60
             );
-
             const seconds = totalSeconds % 60;
-
             countdownElement.textContent =
                 hours + " jam " +
                 minutes + " menit " +
@@ -210,6 +308,23 @@
             updateSessionCountdown,
             1000
         );
+    </script>
+
+    <script>
+    function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    }
     </script>
 
 </body>

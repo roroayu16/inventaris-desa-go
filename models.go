@@ -17,6 +17,16 @@ type SessionInfo struct {
 	ExpiresAt time.Time
 }
 
+type UbahPasswordData struct {
+	User               User
+	SessionEnd         time.Time
+	PasswordLama       string
+	PasswordBaru       string
+	KonfirmasiPassword string
+	ErrorMessage       string
+	ErrorField         string
+}
+
 type Barang struct {
 	ID         int
 	KategoriID int

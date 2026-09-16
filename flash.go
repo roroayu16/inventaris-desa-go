@@ -8,9 +8,10 @@ import (
 )
 
 type Flash struct {
-	Type     string
-	Message  string
-	Duration int
+	Type        string
+	Message     string
+	Duration    int
+	RedirectURL string
 }
 
 func SetFlash(
@@ -49,6 +50,32 @@ func SetFlashWithDuration(
 	)
 }
 
+func SetFlashWithRedirect(
+	w http.ResponseWriter,
+	flashType string,
+	message string,
+	duration int,
+	redirectURL string,
+) {
+
+	value := url.QueryEscape(
+		flashType + "|" +
+			message + "|" +
+			strconv.Itoa(duration) + "|" +
+			redirectURL,
+	)
+
+	http.SetCookie(
+		w,
+		&http.Cookie{
+			Name:     "flash",
+			Value:    value,
+			Path:     "/",
+			HttpOnly: true,
+		},
+	)
+}
+
 func GetFlash(r *http.Request, w http.ResponseWriter) *Flash {
 
 	cookie, err := r.Cookie("flash")
@@ -67,7 +94,7 @@ func GetFlash(r *http.Request, w http.ResponseWriter) *Flash {
 
 	value, _ := url.QueryUnescape(cookie.Value)
 
-	parts := strings.SplitN(value, "|", 3)
+	parts := strings.SplitN(value, "|", 4)
 
 	if len(parts) < 2 {
 		return nil
@@ -83,9 +110,16 @@ func GetFlash(r *http.Request, w http.ResponseWriter) *Flash {
 		}
 	}
 
+	redirectURL := ""
+
+	if len(parts) == 4 {
+		redirectURL = parts[3]
+	}
+
 	return &Flash{
-		Type:     parts[0],
-		Message:  parts[1],
-		Duration: duration,
+		Type:        parts[0],
+		Message:     parts[1],
+		Duration:    duration,
+		RedirectURL: redirectURL,
 	}
 }

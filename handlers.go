@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -82,7 +81,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-// Login Middleware
+// LOGIN MIDDLEWARE
 func requireLogin(handler http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +102,7 @@ func requireLogin(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// Super Administrator Middleware
+// SUPER ADMINISTRATOR MIDDLEWARE
 func requireSuperAdmin(handler http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -155,10 +154,7 @@ func profilHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := struct {
-		User       User
-		SessionEnd time.Time
-	}{
+	data := UbahPasswordData{
 		User:       user,
 		SessionEnd: sessionInfo.ExpiresAt,
 	}
@@ -194,6 +190,10 @@ func kelolaUserHandler(w http.ResponseWriter, r *http.Request) {
 		users,
 	)
 }
+
+// ==============================================
+// PASSWORD
+// ==============================================
 
 // RESET PASSWORD
 func resetAdminPasswordHandler(w http.ResponseWriter, r *http.Request) {
@@ -240,6 +240,133 @@ func resetAdminPasswordHandler(w http.ResponseWriter, r *http.Request) {
 		w,
 		r,
 		"/kelola-user",
+		http.StatusSeeOther,
+	)
+}
+
+// UBAH PASSWORD
+func ubahPasswordHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(
+			w,
+			"Method tidak diizinkan",
+			http.StatusMethodNotAllowed,
+		)
+		return
+	}
+
+	user, err := getCurrentUser(r)
+
+	if err != nil {
+		http.Redirect(
+			w,
+			r,
+			"/login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	sessionInfo, err := getCurrentSessionInfo(r)
+
+	if err != nil {
+		http.Redirect(
+			w,
+			r,
+			"/login",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	passwordLama := r.FormValue("password_lama")
+	passwordBaru := r.FormValue("password_baru")
+	konfirmasiPassword := r.FormValue("konfirmasi_password")
+
+	data := UbahPasswordData{
+		User:               user,
+		SessionEnd:         sessionInfo.ExpiresAt,
+		PasswordLama:       passwordLama,
+		PasswordBaru:       passwordBaru,
+		KonfirmasiPassword: konfirmasiPassword,
+	}
+
+	if passwordLama == "" ||
+		passwordBaru == "" ||
+		konfirmasiPassword == "" {
+		SetFlash(
+			w,
+			"warning",
+			"Semua field harus diisi.",
+		)
+		http.Redirect(
+			w,
+			r,
+			"/profil",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	if !checkPassword(passwordLama, user.Password) {
+		data.ErrorField = "password_lama"
+		data.ErrorMessage = "Password lama tidak sesuai."
+
+		renderTemplate(w, r, "profil.html", "", data)
+		return
+	}
+
+	if passwordBaru != konfirmasiPassword {
+		data.ErrorField = "konfirmasi_password"
+		data.ErrorMessage = "Konfirmasi password tidak sesuai."
+
+		renderTemplate(w, r, "profil.html", "", data)
+		return
+	}
+
+	if passwordBaru == passwordLama {
+		data.ErrorField = "password_baru"
+		data.ErrorMessage = "Password baru harus berbeda dari password lama."
+
+		renderTemplate(w, r, "profil.html", "", data)
+		return
+	}
+
+	err = changeUserPassword(
+		user.ID,
+		passwordBaru,
+	)
+
+	if err != nil {
+
+		SetFlash(
+			w,
+			"danger",
+			"Gagal mengubah password.",
+		)
+
+		http.Redirect(
+			w,
+			r,
+			"/profil",
+			http.StatusSeeOther,
+		)
+		return
+	}
+
+	SetFlashWithRedirect(
+		w,
+		"success",
+		"Password berhasil diubah, silahkan login dengan password baru. Menuju halaman login...",
+		5000,
+		"/login",
+	)
+
+	http.Redirect(
+		w,
+		r,
+		"/profil",
 		http.StatusSeeOther,
 	)
 }

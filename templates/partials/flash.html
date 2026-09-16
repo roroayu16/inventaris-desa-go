@@ -7,7 +7,8 @@
     <div id="flashMessage"
          class="alert alert-{{.Flash.Type}} alert-dismissible fade show"
          role="alert"
-         data-flash-duration="{{.Flash.Duration}}">
+         data-flash-duration="{{.Flash.Duration}}"
+         data-redirect-url="{{.Flash.RedirectURL}}">
 
         {{.Flash.Message}}
 
@@ -33,9 +34,21 @@
             flash.dataset.flashDuration
         );
 
+        const redirectURL = flash.dataset.redirectUrl;
+
         setTimeout(function() {
             const alert = bootstrap.Alert.getOrCreateInstance(flash);
             alert.close();
+
+            const redirectURL = flash.dataset.redirectUrl;
+
+            setTimeout(function() {
+                if (redirectURL) {
+                    window.location.href = redirectURL;
+                } else {
+                    window.location.reload();
+                }
+            }, 300);
         }, duration);
     });
 </script>

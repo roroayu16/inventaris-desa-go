@@ -24,6 +24,7 @@ func main() {
 
 	// PROFIL
 	http.HandleFunc("/profil", requireLogin(profilHandler))
+	http.HandleFunc("/profil/ubah-password", requireLogin(ubahPasswordHandler))
 
 	// KELOLA USER
 	http.HandleFunc("/kelola-user", requireSuperAdmin(kelolaUserHandler))

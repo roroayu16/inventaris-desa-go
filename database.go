@@ -265,7 +265,7 @@ func checkPassword(password string, hashedPassword string) bool {
 	return err == nil
 }
 
-// reset Admin Password
+// RESET ADMIN PASSWORD
 func resetAdminPassword(newPassword string) error {
 
 	hashedPassword, err := hashPassword(newPassword)
@@ -290,6 +290,7 @@ func resetAdminPassword(newPassword string) error {
 	return err
 }
 
+// PASSWORD ACAK SEMENTARA
 func generateTemporaryPassword() (string, error) {
 
 	const characters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789"
@@ -311,6 +312,35 @@ func generateTemporaryPassword() (string, error) {
 	}
 
 	return string(password), nil
+}
+
+// UBAH PASSWORD USER
+func changeUserPassword(
+	userID int,
+	newPassword string,
+) error {
+
+	hashedPassword, err := hashPassword(newPassword)
+
+	if err != nil {
+		return err
+	}
+
+	now := time.Now().Format("2006-01-02 15:04:05")
+
+	_, err = db.Exec(`
+        UPDATE users
+        SET
+            password = ?,
+            updated_at = ?
+        WHERE id = ?
+    `,
+		hashedPassword,
+		now,
+		userID,
+	)
+
+	return err
 }
 
 // ==============================================
